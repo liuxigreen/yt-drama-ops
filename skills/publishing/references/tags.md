@@ -3,7 +3,7 @@
 ## 四层标签矩阵
 
 1. **题材层**：#ceolovestory #reborn #revenge #drama
-2. **情绪层**：#love #betrayal #regrets #beggging
+2. **情绪层**：#love #betrayal #regrets #begging
 3. **格式层**：#shortdrama #minidrama #FULL #ENG DUB
 4. **语言层**：#cdrama #kdrama #engsub #español
 

@@ -8,6 +8,10 @@ All notable changes to yt-drama-ops will be documented in this file.
 - **covers.md**：删除错误的"面部60%+"诊断标准，改为"中景/中近景为主，面部清晰可辨表情即可（爆款实测肤色占比仅~10%）"
 - **SKILL.md**：封面诊断要素从"人物特写"改为"构图站位"，同步母本实测结论
 - **SKILL.md**：JSON输出示例 `figure` → `composition`
+- **channel-diagnosis/SKILL.md**：步骤3和步骤9同步删除"面部60%+"错误规则
+- **knowledge/validated.md**：封面规则从🟡"人物特写占60%+"更正为🟢"爆款封面肤色占比仅~10%，场景叙事型更有效"
+- **tags.md**：修正"#beggging"拼写错误为"#begging"
+- **publishing/SKILL.md**：钩子引用从"7种"更新为"7类核心+5类新发现"
 
 ### Updated
 - **hooks.md**：骨架公式从旧版13种对齐到母本 short-drama-youtube 3.1.0 的13种（新增：被迫关系升温型、隐藏强者救援型、亲情守护打脸型、集体误判打脸型、绝嗣/意外得子型、危险权势反差甜宠型、命运道具触发型、天才儿童破局型）

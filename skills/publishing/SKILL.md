@@ -36,7 +36,7 @@ description: |
 ### 步骤2：命中钩子
 每个标题至少命中2个钩子。
 
-→ 7种钩子体系见 references/hooks.md
+→ 钩子体系（7类核心+5类新发现）见 references/hooks.md
 
 ### 步骤3：包装成标题
 用包装模式把骨架+钩子包装成完整标题。
