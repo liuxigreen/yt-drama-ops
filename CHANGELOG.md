@@ -2,7 +2,7 @@
 
 All notable changes to yt-drama-ops will be documented in this file.
 
-## [1.1.0] - 2026-07-12 (定版v2)
+## [1.1.0] - 2026-07-12 (定版v3)
 
 ### Fixed
 - **covers.md**：删除错误的"面部60%+"诊断标准，改为"中景/中近景为主，面部清晰可辨表情即可（爆款实测肤色占比仅~10%）"
@@ -18,6 +18,9 @@ All notable changes to yt-drama-ops will be documented in this file.
 - **quadrant.md**：CTR阈值全文统一为6/2.5（48h表和速查表同步）
 
 ### Updated
+- **short-drama-youtube-3.1.md**：新增「标准生图Prompt」章节——7张模板卡各一条蒸馏驱动的标准prompt，含固定骨架/软约束/变量槽/组装示例，基于267条封面按hook分桶统计
+- **publishing/SKILL.md**：封面流程接入标准prompt（选卡→填槽→生图）
+- **video-optimization/SKILL.md**：封面诊断步骤3接入标准prompt
 - **covers.md**：顶部加"生产层vs校验层"说明，接入母本7张封面模板卡
 - **publishing/SKILL.md**：封面指令生成流程重写为"选模板卡→组装prompt→校验"
 - **video-optimization/SKILL.md**：封面诊断步骤3产出方案必须注明模板卡名称

@@ -56,13 +56,10 @@ description: |
 
 ### 步骤1：选模板卡
 按视频 hook 类型从母本 `references/short-drama-youtube-3.1.md` 的 7 张模板卡中选卡：
-1. 身份反差局（identity）
-2. 撞破背叛局（relationship）
-3. 情绪爆点局（emotion）
-4. 翻脸打脸局（reversal）
-5. 时空改命局（time）
-6. 巨额补偿局（compensation）
-7. 异能觉醒局（system/special_power）
+→ 选卡后，使用该卡的**标准生图Prompt**（母本「标准生图Prompt」章节）：
+  - 固定骨架不可改（构图/景别/安全区来自蒸馏统计）
+  - 软约束可按题材偏离（必须声明理由）
+  - 填变量槽：{主角} {配角} {场景} {道具}
 
 → 取卡内构图/色彩/符号/文字规格 → 结合题材做本地化（参照卡内七语种微调）
 
