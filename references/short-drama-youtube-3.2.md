@@ -1,11 +1,11 @@
 ---
 name: short-drama-youtube
-version: 3.1.0
+version: 3.2.0
 description: |
   短剧YouTube运营专家 — 从7个语言、322个频道、3000+视频蒸馏的跨语言通用规则。触发词：生成标题/封面/标签/上架方案/诊断/优化
 ---
 
-# short-drama-youtube v3.0.0
+# short-drama-youtube v3.2.0
 
 > 从7个语言、322个频道、3000+视频中蒸馏的跨语言通用规则
 
@@ -17,6 +17,21 @@ description: |
 
 **本文件（short-drama-youtube）是唯一知识母本。** 所有 skill/distill.json/代码中的规则都是它的投影，只能单向从本文件生成/同步。禁止在投影上直接改知识。改知识只改本文件，然后重新生成下游。
 
+## ⚠️ 血泪教训：模板卡必须从数据生成，不能手写翻译
+
+**2026-07-16 事故**：7张模板卡色彩指令全部跟竞品数据相反。手写时掺入"电影摄影=冷色调=高级感"偏见：
+- 竞品：暖色92%、明亮72%、金色36%最多、偏暗仅15%
+- 旧卡：7张全部写"冷蓝灰背景"、"冷色调为主"
+- 结果：生成封面全黑乎乎的
+
+**根因**：从统计数字翻译成prompt指令时主观加入偏见。数字没问题，翻译错了。
+
+**防范**：
+1. 色彩指令**必须引用具体数据**（如"暖色50%、冷色21%"），不能只写描述
+2. 写完卡后做数据一致性校验 → 见 `references/cover-card-validation.md`
+3. 封面亮度校验 → `scripts/validate_brightness.py`
+4. 当数据和常识冲突时，**信数据不信常识**
+
 ## 与其他 skill 的关系
 
 | Skill | 职责 | 何时用 |
@@ -26,6 +41,50 @@ description: |
 | `duanju-title-generation` | 标题生成的快速入口 | 简单标题生成（被本skill覆盖） |
 
 ⚠️ 本skill和`duanju-youtube-expert`触发词高度重叠（"标题分析""频道诊断""运营建议"），任何会话可能双份注入。改规则时需同步。
+
+## ⚠️ 三条分析线不能混（2026-07-13厘清）
+
+系统有三条独立的分析线，目的、输入、输出完全不同：
+
+| 分析线 | 目的 | 输入 | 输出 | 找问题？ |
+|--------|------|------|------|---------|
+| **自有频道诊断** | 发现自己频道的瓶颈 | OAuth数据（CTR/留存/流量） | 健康度/问题/行动清单 | ✅ 是 |
+| **竞品蒸馏** | 学习成功模式 | 公开数据（播放量/标题/封面） | 骨架/钩子/封面构图统计 | ❌ 不是，只提取模式 |
+| **封面生成层** | 按模板卡生成封面 | 蒸馏统计结论 | 生图prompt | ❌ 不是，按规则生产 |
+
+**常见混淆**：
+- 给竞品高播放视频打"改进建议" → 错。竞品分析只提取成功模式，不找问题。
+- 用同一套7维评分同时做竞品蒸馏和自有诊断 → 应该分离。竞品用结构化提取，自有用诊断评分。
+- 自有频道CTR健康但还输出封面改进建议 → 浪费。CTR健康说明封面没问题。
+
+## ⚠️ 分析前置判断规则（2026-07-13）
+
+标题和封面分析不应该每条视频都输出"改进建议"。先判断表现，再决定要不要深入分析：
+
+```
+if 播放量 > 频道均值 AND 协同分 ≥ 7:
+    → 输出"此标题/封面有效，建议复制模式"
+    → 跳过优化建议
+else:
+    → 触发深度分析，输出具体改进
+```
+
+**根因**：分析prompt里有"理想清单"，不管实际表现多好，只要不符合清单就扣分。15万播放的标题被说"缺少悬念词"——没意义。
+
+**四象限同理**：
+- 标题超卖（CTR高、留存低）→ 封面没问题 → 跳过封面打分
+- 爆款基因（CTR高、留存高）→ 都没问题 → 只输出"复制模式"
+- 门面拖累（CTR低、留存高）→ 才需要封面深度分析
+
+## ⚠️ 四象限系统依赖OAuth（2026-07-13）
+
+四象限归类需要CTR数据，只有OAuth授权的自有频道才有。竞品频道（330个）全没有CTR，四象限对它们无效。
+
+| 场景 | 四象限可用？ | 替代方案 |
+|------|------------|---------|
+| 自有频道+OAuth | ✅ 完整四象限 | — |
+| 自有频道+无OAuth | ❌ skipped | 看播放量分布粗略判断 |
+| 竞品频道 | ❌ 不适用 | 只做模式提取，不做问题诊断 |
 
 ## ⚠️ 已废除的旧规则
 
@@ -48,7 +107,53 @@ description: |
 | **人物/道具层** | 展示"谁在做什么" | 站位模式（对峙/高低/背对/围观/保护/独白）+ 表情 + 核心道具 |
 | **文字层** | 补充标题信息 | 底部15%深色渐变 + 白色标题文字 + 左上角标 |
 
-**生图工具**：以GPT/DALL-E为主。prompt用英文，含场景+人物+道具+光影+构图+技术参数。
+**生图工具**：以ChatGPT（GPT Imagine，底层DALL-E 3）为主。prompt用英文，含场景+人物+道具+光影+构图+技术参数。
+
+### ⚠️ 封面prompt的两种生产路径（2026-07-15实测）
+
+**路径A：模板卡正向生成**（旧方法）
+```
+模板卡 → 选卡 → 填变量槽 → 输出prompt
+```
+- 问题：产出的prompt是"构图规则说明书"，不是"具体画面描述"
+- 人物泛泛（"a young woman in elegant dress"），场景抽象（"office building"）
+- ChatGPT生图效果差——它需要**具体画面**，不是**框架指导**
+
+**路径B：竞品封面反向工程**（新方法，2026-07-15验证有效）
+```
+竞品高播放封面 → Vision模型分析 → 反推ChatGPT生图prompt → 作为few-shot example
+```
+- 产出的prompt是**具体画面描述**：具体人物外貌、具体道具、具体空间站位
+- ChatGPT生图效果显著提升
+- 脚本：`scripts/reverse_engineer_cover_prompts.py`（单条）、`scripts/batch_reverse_covers.py`（批量）
+- 输出：`data/reverse_engineered_covers/all_reversed_prompts.json`
+
+**正确的工作流**：
+1. 模板卡用于**选卡**（决定构图类型：contrast/center）
+2. 反推prompt库提供**few-shot examples**（告诉ChatGPT"好的封面prompt长什么样"）
+3. 基于剧情内容+选卡结果+few-shot examples → 生成新的具体画面prompt
+
+### ChatGPT/GPT Imagine prompt硬约束（2026-07-15血泪教训）
+
+1. **自然语言描述具体画面**，不是关键词堆叠
+2. **不要用电影术语**（chiaroscuro, mise-en-scène），用plain English
+3. **不要写像素级布局**（"60% center-low"），ChatGPT不认——用自然语言说"dominates the left foreground"
+4. **色彩用具体描述**（"warm golden light, cold blue shadows"）不用HEX色值
+5. **100-150词最佳**，超过150词ChatGPT会忽略后面内容
+6. **末尾必须加**：`CONSTRAINTS: NO text, NO Chinese characters, NO gibberish in image`
+7. **指定**：`16:9 landscape, 1280x720, photorealistic, cinematic, thumbnail-friendly`
+8. **竞品封面都是AI生成的**，不是真人实拍——不要假设"我们AI生图质量不如真人"
+
+### 反推prompt vs 模板卡prompt对比
+
+| 维度 | 模板卡prompt | 反推prompt |
+|---|---|---|
+| 人物 | "a young woman in elegant dress" | "muscular man with large back tattoo, tattered white cloth, carrying pole with durians" |
+| 场景 | "office building / luxury car" | "dusty rural road, tropical village, wooden stilt houses, palm trees" |
+| 动作 | "standing tall with cold expression" | "seen from behind, walking away" + "runs toward viewer with panicked expression" |
+| 道具 | 泛泛"evidence file" | 具体"two baskets of durians, baseball bat, black pickup trucks" |
+| 构图 | "center composition" | "man dominates left foreground, woman in center middle ground, trucks in right background" |
+| 长度 | 150-200词 | ~120词 |
 
 **⚠️ 数据纪律（血泪教训）**：
 1. 做封面分析前，**先查本机已有数据**——`distill/evidence/*/covers.json`（7语种×267条详细封面分析，每条含结构化枚举+10个中文描述字段+meta含views/title）。不要基于小样本（<50张）做全局结论。
@@ -62,19 +167,131 @@ description: |
    - 爆款分：各构图/色彩差异不大（7.3-7.5），说明**构图不是决定性因素**
 4. 封面蒸馏脚本：`distill_cover_analysis.py`，输入`distill/evidence/*/covers.json`，输出`data/cover_distill_stats.json`（构图/色彩/文字/人物/道具/题材/语种偏好的统计+交叉分析）。
 5. 封面分析prompt母本：`references/cover-analysis-prompt.md`（v2.0，蒸馏/诊断两套）。代码从.md文件按section header读取，不硬编码。
+## ⚠️ 竞品频道数据库清理流程
+
+当发现竞品数据库（`competitors_channels_all.json`，330+频道）中有非短剧频道时，需要**上下游全量清理**。
+
+### 非短剧频道识别方法
+
+关键词过滤有盲区（子串匹配，不覆盖变体）。需要**内容级验证**：检查视频标题是否含drama关键词。
+
+**已确认的非短剧类型**：
+- 企业/银行频道（如 Solusi BCA = 印尼BCA银行，视频标题是商业人物访谈）
+- 音乐人频道（如 Sal Priadi、El Teque Mentao，含"Official Music Video"）
+- 美妆/vlog频道（如 Misellia = 韩国美妆vlogger，191万订阅）
+- 喜剧/综艺频道（如 GJLS ENTERTAINMENT = 印尼喜剧）
+- 电影推荐频道（如 Top Cine & Tv = 西语电影Top10）
+- 短剧评论频道（如 REVIEW Sinetron pendek = 评论非自制）
+- 长剧推荐频道（如 Rafael Novelas y más = telenovela推荐）
+- 食品/烘焙品牌（如 BAKPIAKU = 印尼面包品牌）
+
+**误报风险**：关键词"wealth"/"insurance"/"bank"可能出现在drama视频标题中（如"she took all wealth"），不能单凭一个关键词判断。
+
+### 清理检查清单（上下游）
+
+| 文件 | 操作 |
+|------|------|
+| `competitors_channels_all.json` | 从channels[]中移除 |
+| `competitor_tiers.json` | 从channels[]中移除 |
+| `competitor_registry.json` | 按channel_id删除 |
+| `competitor_channels.json` | 移除 |
+| `competitor_data/latest.json` + `staging.json` | 移除 |
+| `competitor_data/api_progress.json` | 移除 |
+| `competitor_insights/channel_{id}.json` | DELETE文件 |
+| `competitor_insights/_analyzed_channels.json` | 移除 |
+| `competitor_snapshots/collect_progress.json` | 移除 |
+| `market_insights_*.json` | 检查是否有channel引用 |
+
+**注意**：`competitor_data/archive/` 下的历史文件不动（保留审计痕迹）。
+
+### 清理后验证
+
+```python
+# 扫描剩余频道是否有非drama信号
+# 检查所有频道的视频标题，找0 drama关键词的频道
+DRAMA_KW = ['ceo','billionaire','revenge','reborn','drama','episode','总裁','霸总','重生','逆袭','复仇','短剧']
+for ch in channels:
+    titles = [v['title'] for v in ch.get('videos_detail', [])]
+    drama_hits = sum(1 for t in titles if any(kw in t.lower() for kw in DRAMA_KW))
+    if drama_hits == 0:
+        print(f'⚠️ {ch["name"]} - 0 drama signals in video titles')
+```
+
+## ⚠️ 诊断层 vs 生成层封面规则对齐状态（2026-07-13）
+
+**结论：基本对齐，但有两个细微问题。**
+
+诊断层（diagnose_channel.py 的 SYNERGY_RULES + cover_analysis_own.py 的7维评分）和生成层（7张模板卡 + 四层prompt结构）使用**同一套规则体系**，不存在打架。7个评分维度（composition/person/color/emotion/prop/text/synergy）与模板卡维度一一对应。
+
+**问题1：SYNERGY_RULES 硬编码在 diagnose_channel.py:657-678**
+- 诊断层的封面×标题协同规则是写死在代码里的，不是从 `references/cover-analysis-prompt.md` 读取的
+- 如果改了模板卡的内容，诊断层不会自动同步
+- **修复方向**：SYNERGY_RULES 也从母本文件读取，跟封面分析prompt统一
+
+**问题2：诊断层是微观评分，缺宏观视角**
+- 诊断层的封面分析是单视频评分（"这条封面打几分"）
+- 模板卡是频道级策略（"你这个频道应该用哪张卡"）
+- **缺失**：频道级封面一致性检查（30条封面是否挤在同一张卡上 → 同质化风险）
+
+## ⚠️ YouTube官方培训 vs 我们的诊断系统覆盖度（2026-07-13）
+
+YouTube Partner Day（梁倩红/Cloe Tai/Ben Yu）强调的核心要求 vs 我们诊断系统的覆盖：
+
+| 官方要求 | 我们覆盖 | 状态 |
+|---------|---------|------|
+| CTR是第一开关 | 四象限归类+封面协同+逐视频CTR | 🟢 完整 |
+| 留存/AVD | 分段留存曲线+中段流失诊断 | 🟢 完整 |
+| 封面标题协同 | 8种协同模式+反模式检测 | 🟢 完整 |
+| 变现达标 | YPP门槛分项判定 | 🟢 完整 |
+| 发布频率 | upload_pace分析 | 🟢 完整 |
+| 系列化 | ❌ 已删除（短剧标准是完整发布） | 🟡 不适用 |
+| 流量来源 | 推荐/搜索/订阅占比分析 | 🟢 完整 |
+| 同质化风险 | ❌ 无 | 🔴 缺失 |
+| AIGC合规 | ❌ 无 | 🔴 缺失 |
+| 本土化质量 | ❌ 无 | 🔴 缺失 |
+| 频道品牌一致性 | ❌ 无 | 🔴 缺失 |
+| 内容垂直度 | ❌ 无 | 🔴 缺失 |
+
+**核心差距**：我们的诊断是视频级战术优化器，YouTube官方强调的是频道级战略资产。
+
+**实际可操作的同质化风险指标**（轻量预警，不做合规检测）：
+- 标题骨架重复率：最近30条中最大骨架占比 >40% ⚠️ >60% 🔴
+- 封面模式集中度：最常用封面构图占比 >50% ⚠️ >70% 🔴
+- 时长标准差：视频时长的离散程度 <5min ⚠️ <2min 🔴
+
+详见 `references/youtube-official-training-alignment.md`。
+
 ## ⚠️ 常见陷阱
 
+-10. **竞品封面是AI生成的，不是真人实拍**（2026-07-15用户纠正）：短剧频道封面基本都是AI生成的（ChatGPT/GPT Imagine等），不是从剧中截取的真人照片。不要假设"AI生图质量不如真人"——问题出在prompt策略，不在AI能力上限。
+-9. **模板卡prompt≠好的生图prompt**（2026-07-15实测）：模板卡是"构图规则说明书"，ChatGPT需要的是"具体画面描述"。正确的用法：模板卡用于选卡，反推prompt库提供few-shot examples，然后基于剧情生成具体画面prompt。详见`references/cover-prompt-engineering.md`。
+-8. **ChatGPT/GPT Imagine的prompt硬约束**（2026-07-15）：不要用电影术语（chiaroscuro）、不要写像素级布局（60% center-low）、不要超过150词、色彩用描述不用HEX、末尾必须加`CONSTRAINTS: NO text, NO Chinese characters, NO gibberish in image`。
+-7. **反推prompt流程：先分析再生成**：vision模型反推时，先要求分析8个维度（场景/人物/色彩/光影/道具/构图/情绪/文字），再写生图prompt。直接跳到"写prompt"会产出泛泛的描述。
+-0. **Vue移动端表格→卡片模式**：面板前端ChannelAnalysis等页面的移动端适配有固定模式（容器class+CSS显隐+双份详情内容+overflow修复）。详见 `references/frontend-mobile-table-card.md`。
+- **YouTube官方培训蒸馏**：2026-07-13从YouTube Partner Day三份PDF蒸馏的核心要求（政策红线、算法因素、AI精品策略、本土化要求）。详见 `references/youtube-official-training-2026-07.md`。
+-0.5. **llm_analyze_channel.py 视频时长float格式化崩溃**：`latest.json` 中 `duration` 字段是 float（如 `185.0`），但 `{secs:02d}` 格式化需要 int。在 `prepare_channel_data()` 中对 `dur` 做 `int(dur)` 再格式化。2026-07-15发现并修复。**防御**：任何从 `latest.json` 读取的数值字段，格式化前先 cast 到目标类型。
+-1. **竞品频道过滤盲区（2026-07-13实测）**：`_is_drama_channel` 的 `non_drama_kw` 关键词黑名单有系统性盲区——用子串匹配，但很多非短剧频道名不含黑名单词。已漏网案例：银行企业频道（"Solusi BCA"，148万订阅）、美妆vlogger（"Misellia"，191万）、音乐人（"Sal Priadi"60.9万）、电影推荐（"Top Cine & Tv"10.9万）、食品企业（"BAKPIAKU"）。漏过原因：频道名不含"bank"/"news channel"/"official music"等黑名单子串；视频标题中有一条含"drama"骗过了2/20阈值。**防御手段**：定期用内容级扫描（检查视频标题是否含短剧核心关键词）做二次验证，不能只靠频道名过滤。2026-07-13一次性清理了10个非短剧频道。`Solusi BCA`（148万订阅印尼银行频道）和`Misellia`（191万韩国美妆频道）是最危险的污染源——会严重拉高市场avg值。
+0. **蒸馏数据就是专业提示词来源**：当用户问"需不需要专业提示词"时，先查已有蒸馏数据——蒸馏数据的构图/色彩/符号统计就是最专业的prompt来源，不需要额外的"专业提示词"。缺失的是把蒸馏发现编码进prompt的自动化层，不是提示词本身。先查已有再提方案。
+-2. **evidence.json澳门数据已被非短剧频道污染**：MO市场avg_views=1,091,706 vs median=8,690（125倍差距），因混入GMA Public Affairs（28M订阅新闻台）和OfficialGDRAGON（4.2M订阅K-pop）。文件末尾L1067已标注`"Use median for MO"`。SKILL.md中MO段落也已用⚠️标记。**使用MO数据时必须用median，禁止用avg**。
+-3. **data路径迁移后代码未同步（致命bug）**：`data/yt_analytics/` 已迁移到 `data/own/analytics/`，但 `diagnose_channel.py` 有**两处**仍读旧路径——line 3724（主诊断路径）和 line 3641（象限预计算路径）。2026-07-13发现line 3641是第二个藏身点。修复：两处都要改。**教训**：数据路径迁移时必须grep所有脚本的旧路径引用（`grep -rn "yt_analytics/" scripts/`），不只改注册表和文档。一次grep可能漏掉不同函数里的相同引用。
+-4. **上下游全量清理原则**：剔除频道时不能只改主库（competitors_channels_all.json），必须遍历所有下游文件：competitor_tiers.json、competitor_registry.json、competitor_data/*.json、competitor_insights/channel_*.json、_analyzed_channels.json、collect_progress.json、market_insights_*.json。2026-07-13清理10个频道涉及14个文件。
+-1. **蒸馏数据就是专业提示词来源**：当用户问"需不需要专业提示词"时，先查已有蒸馏数据——蒸馏数据的构图/色彩/符号统计就是最专业的prompt来源，不需要额外的"专业提示词"。缺失的是把蒸馏发现编码进prompt的自动化层，不是提示词本身。先查已有再提方案。
 0. **外部仓库 yt-drama-ops 会跟母本漂移**：`liuxigreen/yt-drama-ops` 是本skill的对外投影。当母本更新骨架公式、钩子分类、封面诊断规则时，外部仓库不会自动同步。已发现的漂移类型：骨架公式重命名（隐藏身份揭露型→被迫关系升温型等）、钩子数量扩展（7→12）、封面诊断规则修正（"面部60%+"已被实测推翻）、字段名变更（figure→composition）。**同步检查清单**：`skills/video-optimization/references/hooks.md`（骨架+钩子）、`skills/video-optimization/references/covers.md`（诊断标准）、`skills/video-optimization/SKILL.md`（流程+字段名）、`references/cover-prompt-guide.md`（prompt模板）。用户说"先修吧"时直接改+push，不要反复确认。
 1. **补蒸馏≠跑自有频道**：用户说"补蒸馏"是指竞品封面数据（`distill/evidence/*/covers.json`），用`batch_cover_analysis.py`或`daily_pipeline.py --step 5b`。不是`cover_analysis_own.py`（那是自有频道诊断）。搞混会浪费token和时间。
 2. **Vision模型不遵循复杂prompt**：doubao/mimo-v2.5对5部分JSON prompt（结构化+复现prompt+描述+评分+hook_type）只返回旧格式（中文描述字段），新字段全空。v2.0已精简为2部分，但仍需验证。结构化字段靠`distill_cover_analysis.py`后处理提取，不依赖LLM直接输出。
 3. **section header提取Bug**：`raw.find("## 诊断prompt")`会匹配到表格里的文字（如`| 自有诊断 | \`## 诊断prompt\` |`），不是真正的section header。必须按行匹配`line.strip() == "## 诊断prompt"`。
-8. **做分析前先查本机已有数据**：`distill/evidence/*/covers.json`有267条详细封面分析，`data/cover_distill_stats.json`有统计结果。不要用小样本（<50张）做全局结论——曾因只分析11张图就断言"文字一半没有"，实际数据显示92.5%有文字。
+11. **做分析前先查本机已有数据**：`distill/evidence/*/covers.json`有267条详细封面分析，`data/cover_distill_stats.json`有统计结果。不要用小样本（<50张）做全局结论——曾因只分析11张图就断言"文字一半没有"，实际数据显示92.5%有文字。
+12. **竞品频道库仍有非短剧漏网频道（2026-07实测）**：`data/competitors_channels_all.json`（330频道）经过多轮过滤仍含非短剧频道。已确认漏网：`Solusi BCA`（148万订阅，印尼BCA银行企业频道）、`Sal Priadi`（60.9万订阅，印尼歌手）、`El Teque Mentao`（1.1万订阅，委内瑞拉歌手）。漏过原因：①`_is_drama_channel`的non_drama_kw不覆盖"BCA"/"public affairs"等变体；②音乐频道有1条视频标题含"drama"字样骗过≥2阈值。**定期审计**：跑完竞品采集后用频道名+视频标题双重扫描，对top级频道（>100万订阅）人工抽查。
+13. **evidence.json MO市场数据被巨型频道污染**：`references/overseas-drama-director/evidence.json`的MO市场统计被GMA Public Affairs（2800万订阅新闻台）和OfficialGDRAGON（420万订阅K-pop）污染，avg=1,091,706 vs median=8,690（125倍差距）。文件末尾已标注警告，SKILL.md已用median。**规则**：任何涉及MO市场基准的分析，强制用median，禁止用avg。
 9. **封面数据没有hook_type，但标题有**：封面蒸馏的结构化字段只有emotion/composition/color_type，没有hook_type。但每条封面的`_meta.title`可以跟title_skeletons.json的hook关键词匹配来反向分桶。不要用emotion字段当hook_type的代理变量——直接用标题关键词匹配更准确。详见`references/cover-distillation-bucketing.md`。
-10. **找代码/模块/提示词先查知识图谱**
-6. **封面蒸馏数据≠自己频道数据**：竞品在`distill/evidence/*/covers.json`，自己频道在`data/own/channel_diagnosis/*_covers.json`。混淆会导致结论偏差。
-7. **外部AI建议要验证再采纳**：Copilot说"面部60%"是错的、"title/cover命令不存在"也是错的（脚本存在）。先查代码再决定是否采纳建议。
+11. **找代码/模块/提示词先查知识图谱**
+12. **封面蒸馏数据≠自己频道数据**
+13. **竞品数据库有非短剧频道残留，新语种入库前必须审计**：`_is_drama_channel` 过滤器用频道名子串匹配，无法覆盖：频道名不含non_drama_kw的非短剧频道（如"Solusi BCA"银行、"Misellia"美妆vlogger）、视频标题含"drama"字样的非短剧频道（音乐人引用"drama"一词）。2026-07-13从330个频道中剔除10个非短剧频道。新频道入库时应同时检查频道名+视频标题内容，mega频道（>100万订阅）需逐个验证。：竞品在`distill/evidence/*/covers.json`，自己频道在`data/own/channel_diagnosis/*_covers.json`。混淆会导致结论偏差。
+7. **外部AI建议要验证再采纳，但Gemini审计抓到了真实bug**：Copilot说"面部60%"是错的（后来证明确实是错的）、"title/cover命令不存在"也是错的（脚本存在）。先查代码再决定是否采纳建议。**但2026-07-13 Gemini Flash-Lite在repopack审计中准确发现了covers.md和channel-diagnosis/SKILL.md与cover-prompt-guide.md的矛盾**——外部仓库中"面部需清晰占60%+"的规则与母本"不要面部占60%+特写"直接打架。蒸馏数据(214条)证明母本是对的：中景128(60%)、特写19(9%)、1人特写avg_score=6.4最低。教训：**外部AI审计有价值，但必须用本机蒸馏数据验证，不能盲信也不能盲否**。
 8. **蒸馏prompt位置**：封面分析prompt在`references/cover-analysis-prompt.md`（v2.0，蒸馏/诊断两套）。旧版在`daily_pipeline.py` L1399已废弃。`distill/evidence/*/covers.json`是蒸馏产出物。`docs/code-knowledge-graph.json`可快速定位模块。
-7. **封面蒸馏数据在.gitignore中**：`distill/` 目录被gitignore，蒸馏数据不会被commit。只有代码和prompt文件可以提交到git。
+8. **封面蒸馏数据在.gitignore中**：`distill/` 目录被gitignore，蒸馏数据不会被commit。只有代码和prompt文件可以提交到git。
+**⚠️ 自有频道数据路径（2026-07整合）**：OAuth深度数据（留存/CTR/流量/受众）已从 `data/yt_analytics/` 迁移到 `data/own/analytics/`。所有脚本（collect_yt_analytics.py / collect_ctr.py / diagnose_channel.py / panel_v3.py）已同步更新路径。旧目录 `data/yt_analytics.bak` 待验证后删除。自有频道全部数据现在集中在 `data/own/` 下：`analytics/`（OAuth）、`channel_snapshots/`（公开数据）、`channel_diagnosis/`（诊断结果）。**⚠️ 路径迁移陷阱（2026-07-13血泪教训）**：diagnose_channel.py L3724曾遗留旧路径`data/yt_analytics/`未更新，导致四象限系统完全失效（所有频道退化为"表现平庸"，CTR/AVD维度诊断丢失）。症状：`channel_llm.quadrant_summary`不存在或全为"表现平庸"，`ctr_status`为空。排查方法：`grep -n "yt_analytics/" scripts/diagnose_channel.py` 确认无残留旧路径。
+12. **daily-diagnosis cron暂停陷阱**：诊断定时任务因"prompt改造期间避免旧prompt污染"被暂停（enabled=False）。prompt改造完成后必须手动重新启用，否则诊断不会跑。暂停原因记录在 cron jobs.json 的 `paused_reason` 字段。
 6. **封面分析prompt位置（2026-07统一）**：诊断和蒸馏共用统一母本 `references/cover-analysis-prompt.md`（共享核心+诊断附加+蒸馏附加），替代了旧的三处硬编码（cover_analysis_own.py 7维、daily_pipeline.py L1399 11字段、batch_cover_analysis.py 11字段）。改prompt只改母本，代码是投影。蒸馏产出物仍在 `distill/evidence/*/covers.json`。`docs/code-knowledge-graph.json`可快速定位模块。
 
 ## 不可编造信息
@@ -543,11 +760,24 @@ description: |
 - **标题有爆点，封面无证据**：标题写了cheating、reborn、secret billionaire、神医，但封面只有普通合照、风景或静态摆拍，缺乏视觉证据来支持标题的承诺，降低点击可信度。
 - **信息过散**：封面中人物过多（>5人）、文字过多、符号堆砌、场景杂乱。核心钩子在手机端缩略图上无法被一眼识别，分散注意力。
 
-## ⚠️ 封面生产流程（2026-07-12对齐）
+## ⚠️ 封面生产流程（2026-07-15更新）
 
-**生产层 vs 校验层**：
-- **生产层**：按hook类型从下方7张模板卡中选卡 → 取卡内构图/色彩/符号/文字规格 → 结合题材做本地化（参照卡内七语种微调）→ 按四层结构组装生图prompt
-- **校验层**：用封面×标题协同规则和四维评分（构图站位/情绪表达/关键道具/文字标签）对方案做微调校验
+**三层组装**：
+1. **选模板卡**（硬约束）：按hook类型从7张模板卡中选卡 → 取构图/色彩/文字留白规格。这些是223条竞品封面蒸馏出的统计规律，必须固定。
+2. **填变量槽**（剧情事实）：主角/配角/场景/冲突/色彩 → 填入模板卡的变量槽。
+3. **注入参考prompt**（风格校准）：按hook类型从 `references/cover-reference-prompts.md` 中取同桶2-3条反推prompt注入，标注"参考其具体画面描述的写法和细节密度，禁止直接复制"。
+
+**组装顺序**：选卡 → 填变量槽 → 附参考prompt → 输出最终生图prompt
+
+**⚠️ 亮度硬约束（2026-07-16数据修正）**：
+竞品数据：223条封面中暖色92%、明亮72%、偏暗仅15%。7张卡中6张暖色主导。
+prompt末尾必须加：
+`LIGHTING OVERRIDE: Bright natural lighting, subject well-lit and clearly visible, vibrant saturated colors, high contrast. The image must be eye-catching at small thumbnail size on mobile. Avoid dark/dim/moody/desaturated lighting.`
+系统异能卡（唯一冷色主导）例外：背景可偏冷，但能量光效必须高亮。
+
+**为什么需要参考prompt**：模板卡告诉你"要什么"（构图/色彩/符号），但不告诉你"怎么写"。反推prompt是从真实竞品高播放封面逆向生成的ChatGPT生图指令，展示了具体画面描述的写法——具体人物外貌、具体道具、具体空间布局、自然语言而非电影术语。
+
+**参考prompt位置**：`references/cover-reference-prompts.md`（7桶×3条=21条，按hook分组）
 
 封面重做/新做时，必须先选卡再出方案，产出必须注明所选模板卡名称。禁止跳过模板卡用零散规则现场拼装。
 
@@ -565,24 +795,13 @@ description: |
 **匹配骨架**：#1身份落差打脸型、#6隐藏身份揭露型、#8低位闯高位型、#9全员退缩唯一敢型
 **配对标题句式**：【低位身份+被羞辱】+【反转词】+【高位身份+碾压结果】
 
-**变量槽（5个剧情事实类，填空即出图）**：
-| 变量 | 说明 | 示例 |
-|------|------|------|
-| `{主角性别+服装}` | 主角身份的视觉锚点 | 穿破旧工装的女主 / 穿外卖服的男主 |
-| `{配角动作}` | 配角对主角的动作，表达权力落差 | 推搡她跪下 / 冷笑着指向门口 |
-| `{场景}` | 默认值：豪华办公室/豪宅客厅；可从标题提取 | 法庭门口 / 酒店大堂 |
-| `{具体冲突}` | 从标题提取的剧情核心事件 | 被赶出家门 / 当众被扇耳光 |
-| `{题材色彩变体}` | 默认值：冷蓝灰+暖金；可按题材微调 | 复仇：冷蓝+红 / 甜宠：暖金+粉 |
-
-> **软约束**：emotion/symbols等保持现有默认值，偏离时需声明理由。
-
 **构图**：左右/前后对比构图。将低位身份符号（破旧衣服、工装、菜篮）与高位身份符号（豪车、保镖、豪宅、直升机）置于同一画面，形成强烈视觉阶级反差。景别中景，确保表情和道具清晰。
 
 **人物/表情**：
 - 女频：2人构图，主角在低位（蜷缩/被推/跪地），反派/强者在高位（站立/戴墨镜/冷脸）。肢体距离表达权力落差。
 - 男频：1位强主角居中（冷静/不屑），反派在侧（嘲笑/跪地）。战力符号（西装团队、保镖）在背景。
 
-**色彩**：冷蓝灰背景（底层场景）+ 暖金高光（高位身份揭露瞬间）。用环境色（冷）与人物光（暖）制造对比，让人物从背景中"跳"出来。
+**色彩**：暖色为主（金色19%+暖金8%+红色12%+粉色5%=暖色50%，冷色仅21%）。竞品数据：Top1金色、Top2白色、Top3红色。整体明亮饱和，冷色仅作边缘点缀。NO dark/dim/moody tones.
 
 **视觉符号**：低位：工装、外卖服、破衣、街头、雨夜。高位：西装团队、豪车、直升机、黑卡、皇冠。每张封面固定1-2个身份锚点，放在视觉中心。
 
@@ -591,7 +810,6 @@ description: |
 **真实范例**：
 - 标题：Dihina dan diusir oleh Keluarganya, Tak disangka Gadis ini dipungut dan dimanjakan CEO Miliarder!
 - 封面：落魄女子蜷缩在地，白衣CEO戴墨镜站立，背景有直升机和黑西装团队。
-- 变量填充：`{主角性别+服装}`=穿破旧衣服的女主, `{配角动作}`=CEO站立俯视, `{场景}`=豪宅门口, `{具体冲突}`=被家人赶出, `{题材色彩变体}`=冷蓝灰+暖金（默认）
 
 **七语种微调**：
 - en：封面情感表达相对含蓄，侧重构图张力（对峙、距离）而非过度夸张表情。喜欢使用具体场景道具（电梯、办公室、豪车）。
@@ -620,7 +838,7 @@ description: |
 - 女频：3人构图（女主+男主+第三者），聚焦女主的震惊/决绝表情。用肢体距离表达关系断裂（推离、背对、转身）。
 - 男频：主角在中心（冷脸/决绝），反派在侧（慌乱/跪地/求饶）。
 
-**色彩**：冷色调为主（蓝黑、冷灰）表达背叛的冰冷感。用红色点缀（结婚证、戒指、血迹）作为情感爆点。暖色仅在回忆/甜蜜flashback中出现。
+**色彩**：暖色为主（金色14%+红色14%+橙色9%+粉色9%=暖色50%，冷色仅27%）。竞品数据：深蓝和金色并列Top1。整体明亮，红色作为情绪爆点（婚戒、血迹），NO dark/dim/moody.
 
 **视觉符号**：婚戒、离婚协议、亲密照片、破碎花瓶、婚纱、第三者、雨夜。核心道具必须能一眼识别"背叛"。
 
@@ -657,7 +875,7 @@ description: |
 - 女频：2人近景，聚焦女主的震惊/含泪/绝望表情。男主在旁（冷脸/转身/无动于衷）。用表情外露传递情绪张力。
 - 男频：主角在中心（隐忍/觉醒），反派在侧（得意/羞辱）。
 
-**色彩**：浪漫甜宠用暖金、粉、柔光。复仇/虐恋用红黑、冷蓝金、强对比。核心技巧：用环境色（冷）与人物光（暖）制造对比。
+**色彩**：暖色为主（暖色50%，冷色0%）。竞品数据：黑色/白色/棕色各25%。整体暖调明亮，粉色+金色作为情绪高光。NO dark/dim/moody.
 
 **视觉符号**：婚纱、婚床、蛋糕、病历、蛋糕、破碎礼物、眼泪。定格冲突峰值而非和解画面。
 
@@ -694,7 +912,7 @@ description: |
 - 女频：主角在中心（冷脸/自信），围观者在周围（震惊/跪地/后退）。用围观人群强化"打脸"的群体爽感。
 - 男频：主角居中（冷静/碾压姿态），反派在侧（惊恐/跪地/求饶）。战力符号（龙、闪电、金光）围绕主角。
 
-**色彩**：高饱和金、红、蓝。用金光/闪电/能量特效展示能力揭露的瞬间。背景冷色调衬托主角的"发光"感。
+**色彩**：暖色为主（金色21%+红色16%+暖金4%+橙色3%=暖色47%，冷色31%）。竞品数据：Top1金色、Top2红色。高饱和暖色为主，冷色（灰色10%、深蓝7%）仅作背景辅助。整体明亮。NO dark/dim/moody.
 
 **视觉符号**：震惊表情、跪地、证据文件、能力特效（闪电、金光、系统面板）、围观人群。核心是"所有人都没想到"的视觉冲击。
 
@@ -731,7 +949,7 @@ description: |
 - 女频：2人构图，主角在前景（坚定/觉醒/重生后冷脸），过去伤害者在背景（后悔/跪地/震惊）。用前后对比表达"重生后不同"。
 - 男频：主角居中（掌控感），时间符号（日历、雷电、系统面板）在周围。
 
-**色彩**：前世用冷灰/暗淡色调，重生后用暖金/明亮色调。用色温对比表达"命运改写"。
+**色彩**：暖色为主（金色20%+粉色15%+红色10%+暖金5%=暖色55%，冷色仅20%）。竞品数据：Top1金色、Top2白色。整体暖调明亮，冷色仅用于"过去时间线"的小区域对比。NO dark/dim/moody.
 
 **视觉符号**：孕检单、孩子、雷电、破碎时钟、旧照片、重生光效。时间符号必须清晰可识别。
 
@@ -768,7 +986,7 @@ description: |
 - 女频：2-3人构图，女主在高位（站立/手持证据/冷脸），反派在低位（跪地/惊恐/求饶）。用位置高低表达权力反转。
 - 男频：主角居中（冷静/碾压），反派在侧（跪地/惊恐/破产）。
 
-**色彩**：红黑、冷蓝金、强对比。用冷色调衬托主角的冷静和反派的慌乱。高光打在主角和证据道具上。
+**色彩**：暖色为主（金色21%+红色21%+橙色5%+粉色5%=暖色58%，冷色仅16%）。竞品数据：金色和红色并列Top1。高饱和暖色为主，整体明亮华丽。冷色仅作边缘点缀。NO dark/dim/moody.
 
 **视觉符号**：证据文件、离婚协议、破碎婚戒、破产通知、跪地、围观人群。核心是"公开审判"的仪式感。
 
@@ -805,7 +1023,7 @@ description: |
 - 女频：主角在中心（觉醒/发光），反派在周围（震惊/后退/跪地）。能量元素围绕主角。
 - 男频：主角居中（掌控/碾压姿态），反派在侧（惊恐/被碾压）。系统面板/金光/龙纹在背景。
 
-**色彩**：高饱和金色能量、闪电蓝、火焰红、深蓝背景。用能量光效展示能力觉醒的瞬间。
+**色彩**：冷色为主（深蓝17%+冷蓝17%+绿色17%+紫色17%=冷色67%，暖色仅17%）。⚠️此卡是7张中唯一冷色主导的题材，数据验证。深蓝/冷蓝为底，金色/红色能量光效作为视觉焦点。整体可偏冷暗但能量光效必须高亮。
 
 **视觉符号**：闪电、数据面板、金光、神兽、魔法光束、系统界面、冠军服。符号要清晰、辨识度高，且在手机缩略图上可见。
 
@@ -829,12 +1047,16 @@ description: |
 **证据等级**：[来源:7语种市场共性总结 v3.0, 繁中穿越类均播108,688验证]
 
 
-## 标准生图 Prompt（蒸馏驱动，7张模板卡各一条）
+## 标准生图 Prompt（蒸馏驱动，7张模板卡各一条 + 反推参考prompt）
 
 > **数据来源**：267条竞品封面蒸馏数据，按hook分桶统计（2026-07-12）。
 > 每条prompt的固定骨架编码了桶内构图/色彩/站位/道具的统计显著项。
 > 桶内样本<15的字段标[全局回退]，使用267条全局统计。
 > [来源:竞品Top封面共性,未经CTR因果验证]
+>
+> **反推参考prompt**（2026-07-15新增）：223条从竞品高播放封面逆向生成的ChatGPT生图指令。
+> 每桶选3条（题材多样优先），存放在 `references/cover-reference-prompts.md`。
+> Agent生产封面时注入同桶2-3条作为风格校准。
 
 ### 使用规则
 
@@ -856,7 +1078,7 @@ description: |
 
 ### 卡1：身份反差局（identity）· 标准prompt
 
-**桶内统计**：102条 | 构图: contrast 49% / center 45% | 色彩: mixed 61% / warm 33% | 有文字: 77% | 平均人数: 4.2
+**桶内统计**：117条 | 构图: center 50% / contrast 21% | 色彩: 金色19%+白色17%+红色12% | 暖色50% / 冷色21% | 有文字: 78% | 平均人数: 3-4
 
 **【固定骨架】**（不可改）
 - 构图：对角线对比构图（contrast），低位角色在左下，高位角色在右上
@@ -866,7 +1088,7 @@ description: |
 - 风格：photorealistic, cinematic depth of field, East Asian features
 
 **【软约束】**（默认值，可偏离）
-- 色彩基调：mixed（冷色环境+暖色人物光），桶内61%
+- 色彩基调：暖色为主（金色+白色+红色），明亮饱和，冷色仅作边缘点缀
 - 核心道具：西装（桶内59%）+ 豪车/保镖（桶内13%）
 - 背景：office building / luxury car / helicopter pad
 - 文字：左上角半透明胶囊角标
@@ -879,7 +1101,7 @@ description: |
 A humble delivery worker in worn uniform kneeling on the ground, looking up in shock;
 a tall CEO in black tailored suit standing above with arms crossed, cold expression;
 black luxury sedan and bodyguards in blurred background, office building entrance;
-dramatic rim light from behind creating golden edge glow on CEO, cool blue shadows on delivery worker;
+bright warm golden lighting throughout, CEO glowing with golden rim light, delivery worker also well-lit with warm tones;
 scattered delivery packages on wet ground;
 Text overlay area: bottom 15% dark gradient with white title text,
 top-left semi-transparent capsule badge reading "FULL EPISODES",
@@ -891,7 +1113,7 @@ right-bottom corner blank for YouTube timestamp,
 
 ### 卡2：撞破背叛局（relationship）· 标准prompt
 
-**桶内统计**：59条 | 构图: contrast 53% / center 42% | 色彩: mixed 59% / warm 31% | 有文字: 81% | 平均人数: 3.2
+**桶内统计**：11条 | 构图: center 73% / symmetry 18% | 色彩: 深蓝14%+金色14%+红色14% | 暖色50% / 冷色27% | ⚠️样本少
 
 **【固定骨架】**（不可改）
 - 构图：对比构图（contrast），用肢体距离表达关系断裂（推离/背对/转身）
@@ -899,7 +1121,7 @@ right-bottom corner blank for YouTube timestamp,
 - 画幅+安全区+风格：同卡1
 
 **【软约束】**（默认值）
-- 色彩基调：mixed（冷灰为主，红色点缀），桶内59%
+- 色彩基调：暖色为主（金色+红色+橙色+粉色），明亮，红色作为情绪爆点
 - 核心道具：西装（58%）+ 花/玫瑰（34%）+ 文件/离婚协议（19%）
 - 背景：bedroom / hotel corridor / rainy street
 
@@ -911,7 +1133,7 @@ right-bottom corner blank for YouTube timestamp,
 Close-up of a young woman in elegant dress, shocked expression with tears forming,
 holding a torn wedding photo; behind her a man in black suit turns his back, walking away;
 a red lipstick mark visible on his collar as betrayal evidence;
-dim bedroom with cold blue moonlight through window, shattered glass on the floor;
+bright warm bedroom with golden lamplight, shattered glass on the floor catching warm light;
 Text overlay area: bottom 15% dark gradient with white text reading "BETRAYED",
 top-left badge "FULL EPISODES", right-bottom blank for timestamp,
 16:9 landscape, photorealistic, cinematic, East Asian features
@@ -921,7 +1143,7 @@ top-left badge "FULL EPISODES", right-bottom blank for timestamp,
 
 ### 卡3：情绪爆点局（emotion）· 标准prompt
 
-**桶内统计**：9条[全局回退] | 全局构图: contrast 49% / center 43% | 全局色彩: mixed 56% / warm 33% | 全局有文字: 78% | 平均人数: 3.9
+**桶内统计**：4条[⚠️样本极少，仅供参考] | 构图: center 75% | 色彩: 暖色50% / 冷色0%
 
 **【固定骨架】**（不可改）
 - 构图：对比构图（contrast），定格受伤或反击的巅峰瞬间
@@ -929,7 +1151,7 @@ top-left badge "FULL EPISODES", right-bottom blank for timestamp,
 - 画幅+安全区+风格：同卡1
 
 **【软约束】**（默认值，全局回退）
-- 色彩基调：mixed（冷色环境+暖色人物光）
+- 色彩基调：暖色为主（黑色/白色/棕色各25%），整体暖调明亮，粉色+金色情绪高光
 - 核心道具：西装（全局高频）+ 婚纱/蛋糕/病历（按剧情选）
 - 背景：wedding venue / birthday party / hospital / gala
 
@@ -941,7 +1163,7 @@ top-left badge "FULL EPISODES", right-bottom blank for timestamp,
 A bride in white wedding dress standing alone at the altar, tears streaming down her face,
 clutching a bouquet of white roses; the groom in black suit is walking away toward the exit;
 wedding guests in background with shocked expressions, one covering her mouth;
-warm golden chandelier light above, cold blue shadows on the bride;
+warm golden chandelier light above, bride also bathed in warm golden tones;
 wilted rose petals scattered on the marble floor;
 Text overlay area: bottom 15% dark gradient, top-left badge "FULL MOVIE",
 16:9 landscape, photorealistic, cinematic, East Asian features
@@ -951,7 +1173,7 @@ Text overlay area: bottom 15% dark gradient, top-left badge "FULL MOVIE",
 
 ### 卡4：翻脸打脸局（reversal）· 标准prompt
 
-**桶内统计**：32条 | 构图: contrast 56% / center 34% | 色彩: warm 44% / mixed 44% | 有文字: 78% | 平均人数: 3.3
+**桶内统计**：82条 | 构图: center 54% / symmetry 18% | 色彩: 金色21%+红色16%+黑色12% | 暖色47% / 冷色31% | 有文字: 78%
 
 **【固定骨架】**（不可改）
 - 构图：对比构图（contrast），定格冲突高潮或反转揭露瞬间
@@ -959,7 +1181,7 @@ Text overlay area: bottom 15% dark gradient, top-left badge "FULL MOVIE",
 - 画幅+安全区+风格：同卡1
 
 **【软约束】**（默认值）
-- 色彩基调：warm 44%（此桶暖色比例高于其他桶，用于身份揭露的"发光"感）
+- 色彩基调：暖色为主（金色+红色），高饱和明亮，冷色仅作背景辅助
 - 核心道具：西装（44%）+ 跪地/震惊表情
 - 背景：public venue / banquet hall / courtroom
 
@@ -971,7 +1193,7 @@ Text overlay area: bottom 15% dark gradient, top-left badge "FULL MOVIE",
 Center: a young woman in simple clothes standing tall with cold confident expression,
 holding a DNA report document; around her three people in luxury suits kneeling in shock,
 one covering his face in disbelief; crowd of 5-6 onlookers in background with open mouths;
-warm golden spotlight on the woman, others in cooler tones;
+bright warm golden spotlight on the woman, warm golden lighting throughout the scene;
 Text overlay area: bottom 15% dark gradient, top-left badge "FULL EPISODES",
 16:9 landscape, photorealistic, cinematic, East Asian features
 ```
@@ -980,7 +1202,7 @@ Text overlay area: bottom 15% dark gradient, top-left badge "FULL EPISODES",
 
 ### 卡5：时空改命局（time）· 标准prompt
 
-**桶内统计**：11条[全局回退] | 构图: center 73% / contrast 27% | 色彩: mixed 55% / warm 36% | 有文字: 73% | 平均人数: 3.0
+**桶内统计**：16条 | 构图: center 50% / symmetry 25% | 色彩: 金色20%+白色15%+粉色15% | 暖色55% / 冷色20% | ⚠️样本偏少
 
 **⚠️ 此桶构图偏好与其他桶显著不同**：center构图73%远高于全局43%，说明时间/重生题材偏好单主角居中+时间符号环绕的构图。
 
@@ -990,7 +1212,7 @@ Text overlay area: bottom 15% dark gradient, top-left badge "FULL EPISODES",
 - 画幅+安全区+风格：同卡1
 
 **【软约束】**（默认值，全局回退）
-- 色彩基调：mixed（旧时间线冷灰+新时间线暖金渐变）
+- 色彩基调：暖色为主（金色+粉色+红色），整体暖调明亮，冷色仅用于"过去时间线"小区域
 - 核心道具：孕检单/孩子/雷电/破碎时钟/旧照片
 - 背景：split timeline (past gray / present golden)
 
@@ -1001,8 +1223,8 @@ Text overlay area: bottom 15% dark gradient, top-left badge "FULL EPISODES",
 ```
 A determined woman in modern black dress standing center, arms crossed,
 cold expression looking directly at viewer;
-left background: dark gray rainy scene with a ghostly crying version of herself in wedding dress;
-right background: warm golden light with luxury office;
+left background: slightly faded past scene with a ghostly crying version of herself in wedding dress;
+right background: bright warm golden light with luxury office;
 a shattered clock and old wedding photo floating between past and present;
 lightning crack separating the two timelines;
 Text overlay area: bottom 15% dark gradient, top-left badge "FULL MOVIE",
@@ -1013,7 +1235,7 @@ Text overlay area: bottom 15% dark gradient, top-left badge "FULL MOVIE",
 
 ### 卡6：巨额补偿局（compensation）· 标准prompt
 
-**桶内统计**：19条 | 构图: contrast 63% / center 32% | 色彩: mixed 47% / warm 37% | 有文字: 84% | 平均人数: 4.5
+**桶内统计**：7条[⚠️样本少] | 构图: center 57% | 色彩: 金色21%+红色21%+黑色16% | 暖色58% / 冷色16%
 
 **⚠️ 此桶跪地出现率47%为全桶最高**——补偿题材的核心视觉是权力位置转换。
 
@@ -1023,7 +1245,7 @@ Text overlay area: bottom 15% dark gradient, top-left badge "FULL MOVIE",
 - 画幅+安全区+风格：同卡1
 
 **【软约束】**（默认值）
-- 色彩基调：mixed（冷色衬托冷静+暖色打在证据上）
+- 色彩基调：暖色为主（金色+红色），高饱和明亮华丽，冷色仅作边缘点缀
 - 核心道具：西装（42%）+ 文件/证据 + 跪地姿态（47%）
 - 背景：courtroom / company lobby / banquet hall
 
@@ -1036,7 +1258,7 @@ A woman in black power suit standing tall, holding a red folder of evidence,
 cold triumphant expression; below her a man in expensive suit kneeling on the ground,
 hands clasped begging, desperate expression; beside him a younger woman cowering in fear;
 corporate lobby with marble floors, security guards in background;
-dramatic overhead lighting casting long shadows;
+bright warm overhead lighting, golden highlights on the protagonist and evidence;
 Text overlay area: bottom 15% dark gradient, top-left badge "FULL EPISODES",
 16:9 landscape, photorealistic, cinematic, East Asian features
 ```
@@ -1045,7 +1267,7 @@ Text overlay area: bottom 15% dark gradient, top-left badge "FULL EPISODES",
 
 ### 卡7：异能觉醒局（system）· 标准prompt
 
-**桶内统计**：19条 | 构图: center 53% / contrast 47% | 色彩: mixed 63% / warm 26% | 有文字: 74% | 平均人数: 4.6
+**桶内统计**：4条[⚠️样本极少] | 构图: center 75% | 色彩: 冷色67% / 暖色17% | ⚠️7张中唯一冷色主导
 
 **【固定骨架】**（不可改）
 - 构图：中心构图（center），主角居中，能量元素环绕
@@ -1053,7 +1275,7 @@ Text overlay area: bottom 15% dark gradient, top-left badge "FULL EPISODES",
 - 画幅+安全区+风格：同卡1
 
 **【软约束】**（默认值）
-- 色彩基调：mixed（深蓝背景+金色/闪电能量光效），桶内63%
+- 色彩基调：冷色为主（深蓝+冷蓝+绿色+紫色=67%），但金色/红色能量光效必须高亮醒目，不能整体黑
 - 核心道具：武器（11%）+ 系统面板/闪电/金光
 - 背景：virtual space / lightning sky / energy field
 
@@ -1065,7 +1287,7 @@ Text overlay area: bottom 15% dark gradient, top-left badge "FULL EPISODES",
 A young man in torn clothes standing center with arms spread, glowing golden aura around his body,
 determined expression with eyes glowing; lightning bolts crackling around him;
 three muscular fighters in background stumbling backward in shock;
-dark stormy sky with electric blue energy swirling, ground cracking beneath his feet;
+deep blue sky with bright electric blue energy swirling, golden aura blazing around the hero, ground cracking beneath his feet;
 a holographic system panel floating beside him showing level-up indicators;
 Text overlay area: bottom 15% dark gradient, top-left badge "FULL EPISODES",
 16:9 landscape, photorealistic, cinematic, East Asian features
@@ -1092,6 +1314,29 @@ Text overlay area: bottom 15% dark gradient, top-left badge "FULL EPISODES",
 
 
 ## ⚠️ 封面分析prompt统一状态（2026-07-11）
+
+**⚠️ cover-analysis-prompt.md 落后于skill（2026-07-13发现）**：`references/cover-analysis-prompt.md` 是v2.0（7月11日），但skill的7张模板卡和hook-specific框架是7月12-13日更新的。诊断层的封面分析仍在用通用7维评分，没有按hook类型选模板卡评分。**待升级到v3.0**：加入模板卡匹配和hook-specific评分维度。
+
+### ⚠️ cover-analysis-prompt.md 需升级到v3.0（2026-07-13发现）
+
+母本 `references/cover-analysis-prompt.md` 是 v2.0（7月11日），但本skill在7月12-13日升级了封面框架（7张模板卡、四层结构、hook_cover_mapping、七语种微调、变量槽）。诊断prompt仍在做通用7维评分，不区分hook类型。**待升级方向**：在诊断prompt中加入模板卡匹配逻辑——先判断视频属于哪张卡，再按该卡的构图/色彩/符号规格评分。
+
+## ⚠️ 面板封面生成的两条路径（2026-07-15审计确认）
+
+面板有两条封面生成路径，走的框架版本不同：
+
+| 路径 | 端点 | 走什么 | 框架版本 | 状态 |
+|------|------|--------|---------|------|
+| **一键上架** | `/proposal` → `_call_duanju_agent` | Agent加载skill_view(short-drama-youtube) | v3.1（7张模板卡+四层结构） | ✅ 最新 |
+| **优化版封面** | `/generate` action=cover_optimized | 代码直接读prompt文件 | 旧版（硬编码"以千金之名"模板） | ⚠️ 过时 |
+
+**审计证据**（2026-07-15）：
+- `/proposal` Agent输出的封面指令正确使用了钩子对应的模板卡构图（identity→contrast, system→center, reversal→center）
+- 四层结构完整（场景+特效+人物+文字层）
+- 语种本地化正确（INDO DUB / FULL EPISODES badge）
+- 情绪光影对比正确（暖金 vs 冷蓝灰）
+
+**cover-analysis-prompt.md v2.0→v3.0升级不影响一键上架**，只影响竞品蒸馏和自有诊断的封面评分。一键上架走Agent→skill路径，不经过这个文件。
 
 ### 现状：三套prompt并行，统一母本为规格文档
 
@@ -1166,6 +1411,26 @@ doubao/ark-code-latest 和 mimo-v2.5 能稳定处理的JSON输出prompt约**600-
 → 完整方法和2026-07-12实测聚合结果见 `references/cover-distillation-bucketing.md`
 
 **关键结论**：5个主桶（identity 103/relationship 57/reversal 32/system 20/compensation 19）样本充足可独立统计；time(11)和emotion(9)需全局回退。
+
+## ⚠️ 模板卡变量槽定稿（2026-07-13）
+
+7张模板卡的prompt增加5个剧情事实类变量槽，保留蒸馏默认值和软约束机制：
+
+| 变量槽 | 说明 | 示例 |
+|--------|------|------|
+| `{主角性别+服装}` | 剧情事实 | 穿婚纱的女主 / 穿西装的CEO |
+| `{配角动作}` | 肢体语言 | 跪地求饶 / 背对离开 / 拥抱保护 |
+| `{场景}` | 带默认值，可偏离 | 法庭(复仇默认) / 豪宅客厅(霸总默认) |
+| `{具体冲突}` | 从标题提取 | 看到丈夫亲吻初恋 / 被赶出家门 |
+| `{题材色彩变体}` | 带默认值，可偏离 | 冷蓝+红(复仇) / 暖金+粉(甜宠) |
+
+**使用规则**：
+- 默认值从蒸馏数据提取，不改
+- 变量槽每次填入剧情事实
+- emotion/symbols等保持软约束+偏离声明机制
+- 改完一张卡贴diff即可，不用全贴
+
+**状态**：模板卡1（身份反差局）已在外部仓库 yt-drama-ops 实现并推送（commit f065131）。剩余6张卡待补。外部仓库short-drama-youtube-3.1.md已同步更新变量槽表格+软约束说明+范例变量填充。
 
 ## ⚠️ 待补：题材→符号映射层
 
@@ -1317,11 +1582,38 @@ doubao/ark-code-latest 和 mimo-v2.5 能稳定处理的JSON输出prompt约**600-
 
 ## 竞品频道深度分析工作流
 
+### 完整数据管线（三步链）
+
+竞品分析分三步，每步产出下一步的输入。**缺任何一步都会导致下游失败。**
+
+```
+latest.json (采集数据)
+    ↓ distill_competitors.py
+channel_{id}.json (Python级: 标签+标题模式+内容分析)
+    ↓ llm_analyze_channel.py
+channel_{id}.json + llm_analysis.distill (LLM深度: why+what+钩子+封面策略)
+    ↓ market_insights.py
+market_insights_{lang}.json (跨频道市场洞察: 题材趋势+竞争格局+机会点)
+```
+
+| 脚本 | 输入 | 产出 | 速率限制 |
+|------|------|------|---------|
+| `distill_competitors.py` | `latest.json` | Python级分析写入 `channel_*.json` | 无限制 |
+| `llm_analyze_channel.py` | `latest.json` + `channel_*.json` | `llm_analysis.distill` 追加到 `channel_*.json` | 5 RPM (13秒/频道) |
+| `market_insights.py` | `channel_*.json` (有distill的) | `market_insights_{lang}.json` | 无限制 |
+
+**⚠️ market_insights.py 数据门槛**：
+- 每个语种至少 **3个频道** 同时满足：
+  1. 有 `llm_analysis.distill` 数据（即经过 `llm_analyze_channel.py` 分析）
+  2. 均播 ≥ 10,000（`avg_views >= 10000`，从 `latest.json` 计算）
+- 不满足的语种会被跳过，全部不满足则脚本以 exit code 1 退出
+- **常见失败原因**：`llm_analyze_channel.py` 未运行或未跑完 → 0个频道有distill → 无法生成洞察
+
 ### 日常追踪流程
 
 1. **每日采集**：从YouTube采集最新频道数据，更新频道列表和基础指标（订阅数、视频数、层级划分）
 2. **筛选新频道**：每个语种优先选择未分析过的新频道，累计到330个总池
-3. **每日深度分析**：从新频道中选取5个（覆盖不同语种和层级）进行深度分析，输出：
+3. **每日深度分析**：从新频道中选取5个（覆盖不同语种和层级）进行 `distill_competitors.py` 分析，输出：
    - 频道基础信息（ID、名称、订阅、层级）
    - 题材标签和标题模式总结
    - 播放量分布（平均、最高）
@@ -1329,7 +1621,9 @@ doubao/ark-code-latest 和 mimo-v2.5 能稳定处理的JSON输出prompt约**600-
    - 热门标题示例
    - 标签策略总结
 4. **数据存储**：分析结果存入 `data/competitor_insights/channel_{channel_id}.json`，总索引存入 `_analyzed_channels.json`
-5. **生成日报**：整理最新5个频道分析结果，输出结构化报告
+5. **LLM深度分析**：`llm_analyze_channel.py --all` 对所有未分析频道执行LLM深度洞察，产出 `llm_analysis.distill`（含 why:增长原因/受众/阶段, what:题材/标题公式/钩子/封面策略）。耗时 ~58分钟（271频道 × 13秒）
+6. **市场洞察生成**：`market_insights.py` 聚合同语种所有频道的distill数据，用LLM提炼跨频道市场规律（题材趋势/竞争格局/内容空白点）。需≥3个频道均播≥1万
+7. **生成日报**：整理最新5个频道分析结果，输出结构化报告
 
 ### ⚠️ distill_competitors.py 行为说明
 
@@ -1387,8 +1681,8 @@ docs/data-schemas/
 - 封面制作前，先明确‘观众为什么会点击（好奇/愤怒/期待）’，再决定人物动作和道具。
 - 实施A/B测试：同一内容测试不同标题钩子顺序（先写伤害还是身份）和封面风格（对峙型/亲密型/证据型）。
 - 描述模板化以节省精力，创新资源集中在标题、封面和开头3秒。
-- 利用‘完结’、‘全集’、‘配音’等词汇降低观众的观看门槛，提升信任感。
-- 将爆款内容的‘故事骨架’（如低位受辱-隐藏身份-瞬间打脸）系列化复用，替换细节以保持新鲜感。
+- 利用'完结'、'全集'、'配音'等词汇降低观众的观看门槛，提升信任感。
+- 将爆款内容的'故事骨架'（如低位受辱-隐藏身份-瞬间打脸）复用，替换细节以保持新鲜感。
 
 **by_language**：
 - en: 用A/B思路测试同一素材的不同包装：身份反差版、关系背叛版、重生复仇版。, 标题先写完整故事承诺，再加格式词和标签，避免[FULL]等占据信息位。, 定期发布高频内容维持推荐，并积极回复评论以增强粘性。
@@ -1450,7 +1744,7 @@ yt-drama-ops/
 | 任何数据结论 | `knowledge/validated.md`（证据等级） |
 | 母本版本号 | `references/short-drama-youtube-3.1.md`（完整副本） |
 
-**⚠️ 概念残留陷阱**：同一个概念（如"面部60%"）会散布在5-6个文件中（SKILL.md、references/covers.md、channel-diagnosis步骤3/9、validated.md）。改母本时必须 grep 整个外部仓库找所有残留引用，不能只改一处。2026-07-12 实测：修了2处后又发现3处残留。
+**⚠️ 概念残留陷阱**：同一个概念（如"面部60%"）会散布在5-6个文件中（SKILL.md、references/covers.md、channel-diagnosis步骤3/9、validated.md）。改母本时必须 grep 整个外部仓库找所有残留引用，不能只改一处。2026-07-12 实测：修了2处后又发现3处残留。2026-07-13 复查：covers.md和channel-diagnosis/SKILL.md中"面部需清晰占60%+"已修正为"面部清晰可见，中景/中近景为主（特写仅占9%）"。**验证命令**：`grep -rn "60%" skills/ references/` 确认无残留。
 
 **⚠️ 同步执行顺序**：①先改母本 → ②grep外部仓库找所有变体引用（不只精确匹配，还要搜同义词如"面部特写"/"face"/"60%"） → ③逐个文件patch → ④更新CHANGELOG → ⑤commit+push。不要"先改一处看看反馈"再改其他处——用户期望一次修完。
 
@@ -1501,6 +1795,25 @@ yt-drama-ops/
 - 2-3轮CTR数据回流后：有效假设进 `validated.md`，失效进 `lessons.md`
 - 同一题材被验证≥3次 → 提示写入母本 genre-symbols 映射表，题材从盲区转正
 
+## ⛔ 诊断框架更新（2026-07-14对齐内部引擎）
+
+### 诊断建议必须区分原创频道和recap频道
+recap频道（末世manga/manhwa recap等）的内容是已有的剧，不是自己拍的。诊断建议不能套用原创频道的模板。
+- ❌ "优化中段剧情节奏" → ✅ "选节奏更紧凑的剧，剪掉无聊铺垫"
+- ❌ "3.5分钟插反转" → ✅ "剪辑更狠，直接进冲突"
+- ❌ "设计回弹点" → ✅ "选中段不掉链子的剧"
+- ✅ "日更"和"优化标题+封面"对两种频道都适用
+判断recap频道：标题有recap/manga/manhwa/comic/OP MC等关键词，或视频时长>30分钟的连续剧情。
+
+### 赞率必须用加权平均
+`total_likes / total_views × 100`，不是各视频赞率的简单平均。趋势滑窗也用加权平均。
+
+### 播放分布遵循幂律分布
+头部视频播放占比高是YouTube推荐系统的正常机制，严禁列为"爆款依赖症"。诊断重点是"头部视频为什么爆了→如何复制这个模式（Format Replication）"。
+
+### 封面×标题协同是"入场券"而非"胜负手"
+协同≥7后，播放量由标题钩子强度和算法推荐决定，不是封面。应优先优化标题钩子密度。
+
 ### 禁止项
 - 禁止在无验证数据时给出高置信的题材特定建议
 - 禁止跳过 pending.md 建档
@@ -1516,7 +1829,7 @@ yt-drama-ops/
 
 3. **爆款依赖严重**：头部3条视频贡献>60-75%总播放，其余视频播放极低——频道抗风险能力弱，爆款过期后迅速沉寂。**修复策略**：建立稳定题材矩阵，每个题材固定3-5个高验证钩子模式，持续测试新题材但保证基本盘稳定输出。
 
-4. **系列化运营缺失**：标题中无Part/Episode/全集等系列标记，无法形成追剧心理，难以沉淀订阅和回访。**修复策略**：每部长剧拆分系列化更新，标题统一前缀如`Part 1/3: `，描述固定链接到下一集。
+4. **系列化运营已不适用**（2026-07-14删除）：蒸馏数据显示所有7个语言市场的标准发布模式是"一集一个完整故事"，Part 1/2/3拆集不符合市场规范。印尼用`#Full`标签标记完整短剧。系列化分析已从诊断系统中删除。**注意**：这是短剧频道的特殊性，通用YouTube频道仍可使用系列化策略。
 
 5. **标题钩子组合不全**：多数视频只有单一钩子（仅情绪/仅身份），缺乏至少两种钩子组合（情绪+反转、身份+关系），点击率无法突破。**修复策略**：强制每个标题至少组合两种钩子，常见最强配对：`identity + reversal`，`emotion + identity`，`relationship + reversal`。
 
@@ -1574,7 +1887,24 @@ python3 scripts/channel_weekly_snapshot.py
 
 - **A/B+**：维持更新节奏，持续小步测试新钩子/新题材
 - **B/C+**：优先解决1-2个最高优先级问题（如赞率、爆款依赖），每批次优化3-5条低分视频
-- **C及以下**：冷启动阶段建议重新梳理题材聚焦，严格执行系列化+标签优化，高频更新刺激算法重新评估
+- **C及以下**：冷启动阶段建议重新梳理题材聚焦，严格执行标签优化+封面统一，高频更新刺激算法重新评估
+
+### 诊断行动清单结构（2026-07-12更新）
+
+diagnose_channel.py 的 action items 输出结构从4字段扩展到7字段：
+```json
+{
+  "priority": 1,
+  "action": "一句话摘要",
+  "based_on": "依据数据（引用problems.evidence或具体指标）",
+  "concrete_steps": "①步骤一 ②步骤二 ③步骤三",
+  "acceptance_criteria": "验收标准（可量化的完成标志）",
+  "expected_impact": "预期效果",
+  "effort": "低/中/高"
+}
+```
+前端面板（Vue ChannelAnalysis.vue + index_v3.html）均已更新展开层渲染。
+**⚠️ 已有诊断数据只有旧4字段（v-if兼容），新字段在下次诊断运行后出现。**
 
 ### 执行注意事项
 
@@ -1589,8 +1919,10 @@ python3 scripts/channel_weekly_snapshot.py
   - Moonlit Drama Studio → en_moonlit/en
   - Beer Anime → en_beeranime/en
 - **`--slug` 参数不存在**：脚本只支持 `--channel` 和 `--all`。cron prompt 中用 `--slug` 会被 LLM 自行纠错，参数不可控且遗漏新频道。务必用 `--all`。
+- **新频道诊断频率**：增长快的新频道（如Beer Anime两周从6→11条视频）应每周至少跑一次诊断，否则数据过时会导致误判（如"头部3条占99%"在一周后已不成立）。建议cron设置为每周2-3次。
 - 常见API问题：封面分析可能返回401 Unauthorized（token过期），不影响整体诊断，仅缺失单条封面数据；频道级战略诊断可能超时或服务不可用，保留已有诊断即可。
 - **`--slug` 参数不存在**：脚本只支持 `--channel` 和 `--all`。cron prompt 中用 `--slug` 会被 LLM 自行纠错，参数不可控且遗漏新频道。务必用 `--all`。
+- **新频道诊断频率**：增长快的新频道（如Beer Anime两周从6→11条视频）应每周至少跑一次诊断，否则数据过时会导致误判（如"头部3条占99%"在一周后已不成立）。建议cron设置为每周2-3次。
 - 常见API问题：封面分析可能返回401 Unauthorized（token过期），不影响整体诊断，仅缺失单条封面数据；频道级战略诊断可能超时或服务不可用，保留已有诊断即可。
 - 增量执行：仅处理新增视频，跳过已分析内容，节省LLM成本和时间。
 

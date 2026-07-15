@@ -28,14 +28,14 @@
 
 | 题材 | 推荐场景 | 色调 |
 |------|---------|------|
-| 霸总/豪门 | 豪华办公室、豪宅客厅、直升机停机坪、黑色轿车旁 | 深蓝+金 |
-| 甜宠/宠爱 | 温馨客厅、阳台逆光、雨中街道、婚礼现场 | 暖金+粉 |
-| 重生/穿越 | 旧照片/旧场景+现代元素并置、时空交错感 | 冷灰→暖金渐变 |
-| 复仇/打脸 | 法庭、公司大堂、宴会厅、医院走廊 | 冷蓝+红点缀 |
-| 背叛/离婚 | 卧室、酒店走廊、雨夜街道 | 冷灰+暗红 |
-| 系统/异能 | 虚拟空间、雷电天空、能量场围绕主角 | 深蓝+金光 |
+| 霸总/豪门 | 豪华办公室、豪宅客厅、直升机停机坪、黑色轿车旁 | 🔥金色+白色+红色（暖50%）|
+| 甜宠/宠爱 | 温馨客厅、阳台逆光、雨中街道、婚礼现场 | 🔥暖色100%（黑色/白/棕/粉）|
+| 重生/穿越 | 旧照片/旧场景+现代元素并置、时空交错感 | 🔥金色+白色+粉色（暖55%）|
+| 复仇/打脸 | 法庭、公司大堂、宴会厅、医院走廊 | 🔥金色+红色（暖47%）|
+| 背叛/离婚 | 卧室、酒店走廊、雨夜街道 | 🔥金色+红色+橙色（暖50%）|
+| 系统/异能 | 虚拟空间、雷电天空、能量场围绕主角 | ❄️深蓝+冷蓝+绿+紫（冷67%）唯一冷色|
 | 末世/求生 | 废墟城市、破败建筑、浓雾街道 | 暗红+灰黑 |
-| 古装/宫斗 | 宫殿、庭院、书房 | 红金+墨绿 |
+| 古装/宫斗 | 宫殿、庭院、书房 | 🔥金色+红色（暖58%）|
 | 校园 | 教室、操场、校门口 | 青绿+阳光 |
 
 ---
@@ -156,7 +156,7 @@ A woman with determined cold expression standing in the center,
 wearing modern black dress, holding a red folder of evidence, 
 behind her a ghostly translucent overlay of her past self in a wedding dress crying,
 old family photos and a shattered clock floating in the air between past and present,
-split background: left side dark gray rainy scene (past), right side golden warm light (present),
+split background: left side slightly faded past scene, right side bright warm golden light (present),
 lightning crack between the two timelines,
 crowd of people in the background with shocked expressions,
 Text overlay area: bottom 15% dark gradient with white title text,
@@ -191,7 +191,7 @@ East Asian features, soft focus on background, sharp on faces
 |------|------|------|---------|
 | **港风强对比** | 深蓝+金+红 | 高对比，硬光 | 复仇、打脸、背叛 |
 | **韩风柔和** | 粉+白+浅蓝 | 柔光，逆光 | 甜宠、宠爱、初恋 |
-| **暗黑戏剧** | 深紫+黑+暗红 | 低调光，强阴影 | 悬疑、末世、危险 |
+| **暗黑戏剧** | 深紫+黑+暗红 | 低调光，强阴影 | 悬疑、末世、危险（⚠️仅系统异能/末世题材可用，其余题材禁用暗色调）|
 | **明亮清新** | 白+浅绿+阳光 | 自然光，明亮 | 校园、青春、家庭 |
 
 ---
