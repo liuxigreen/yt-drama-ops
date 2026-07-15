@@ -1,11 +1,11 @@
 ---
 name: short-drama-youtube
-version: 3.3.0
+version: 3.2.0
 description: |
   短剧YouTube运营专家 — 从7个语言、322个频道、3000+视频蒸馏的跨语言通用规则。触发词：生成标题/封面/标签/上架方案/诊断/优化
 ---
 
-# short-drama-youtube v3.3.0
+# short-drama-youtube v3.2.0
 
 > 从7个语言、322个频道、3000+视频中蒸馏的跨语言通用规则
 
@@ -16,6 +16,81 @@ description: |
 ## 单一数据源规矩
 
 **本文件（short-drama-youtube）是唯一知识母本。** 所有 skill/distill.json/代码中的规则都是它的投影，只能单向从本文件生成/同步。禁止在投影上直接改知识。改知识只改本文件，然后重新生成下游。
+
+## ⚠️ 血泪教训：模板卡必须从数据生成，不能手写翻译
+
+**2026-07-16 事故**：7张模板卡色彩指令全部跟竞品数据相反。手写时掺入"电影摄影=冷色调=高级感"偏见：
+- 竞品：暖色92%、明亮72%、金色36%最多、偏暗仅15%
+- 旧卡：7张全部写"冷蓝灰背景"、"冷色调为主"
+- 结果：生成封面全黑乎乎的
+
+**根因**：从统计数字翻译成prompt指令时主观加入偏见。数字没问题，翻译错了。
+
+**防范**：
+1. 色彩指令**必须引用具体数据**（如"暖色50%、冷色21%"），不能只写描述
+2. 写完卡后做数据一致性校验 → 见 `references/cover-card-validation.md`
+3. 封面亮度校验 → `scripts/validate_brightness.py`
+4. 当数据和常识冲突时，**信数据不信常识**
+
+## 与其他 skill 的关系
+
+| Skill | 职责 | 何时用 |
+|-------|------|--------|
+| **short-drama-youtube**（本skill） | 蒸馏知识库：13骨架/7钩子/封面模板卡/标签/诊断/Why | 标题生成、方案生成、蒸馏查询 |
+| `duanju-youtube-expert` | 运营方法论+pitfalls+数据流+执行细节 | 频道诊断、面板排查、管线修复 |
+| `duanju-title-generation` | 标题生成的快速入口 | 简单标题生成（被本skill覆盖） |
+
+⚠️ 本skill和`duanju-youtube-expert`触发词高度重叠（"标题分析""频道诊断""运营建议"），任何会话可能双份注入。改规则时需同步。
+
+## ⚠️ 三条分析线不能混（2026-07-13厘清）
+
+系统有三条独立的分析线，目的、输入、输出完全不同：
+
+| 分析线 | 目的 | 输入 | 输出 | 找问题？ |
+|--------|------|------|------|---------|
+| **自有频道诊断** | 发现自己频道的瓶颈 | OAuth数据（CTR/留存/流量） | 健康度/问题/行动清单 | ✅ 是 |
+| **竞品蒸馏** | 学习成功模式 | 公开数据（播放量/标题/封面） | 骨架/钩子/封面构图统计 | ❌ 不是，只提取模式 |
+| **封面生成层** | 按模板卡生成封面 | 蒸馏统计结论 | 生图prompt | ❌ 不是，按规则生产 |
+
+**常见混淆**：
+- 给竞品高播放视频打"改进建议" → 错。竞品分析只提取成功模式，不找问题。
+- 用同一套7维评分同时做竞品蒸馏和自有诊断 → 应该分离。竞品用结构化提取，自有用诊断评分。
+- 自有频道CTR健康但还输出封面改进建议 → 浪费。CTR健康说明封面没问题。
+
+## ⚠️ 分析前置判断规则（2026-07-13）
+
+标题和封面分析不应该每条视频都输出"改进建议"。先判断表现，再决定要不要深入分析：
+
+```
+if 播放量 > 频道均值 AND 协同分 ≥ 7:
+    → 输出"此标题/封面有效，建议复制模式"
+    → 跳过优化建议
+else:
+    → 触发深度分析，输出具体改进
+```
+
+**根因**：分析prompt里有"理想清单"，不管实际表现多好，只要不符合清单就扣分。15万播放的标题被说"缺少悬念词"——没意义。
+
+**四象限同理**：
+- 标题超卖（CTR高、留存低）→ 封面没问题 → 跳过封面打分
+- 爆款基因（CTR高、留存高）→ 都没问题 → 只输出"复制模式"
+- 门面拖累（CTR低、留存高）→ 才需要封面深度分析
+
+## ⚠️ 四象限系统依赖OAuth（2026-07-13）
+
+四象限归类需要CTR数据，只有OAuth授权的自有频道才有。竞品频道（330个）全没有CTR，四象限对它们无效。
+
+| 场景 | 四象限可用？ | 替代方案 |
+|------|------------|---------|
+| 自有频道+OAuth | ✅ 完整四象限 | — |
+| 自有频道+无OAuth | ❌ skipped | 看播放量分布粗略判断 |
+| 竞品频道 | ❌ 不适用 | 只做模式提取，不做问题诊断 |
+
+## ⚠️ 已废除的旧规则
+
+- **`generate_cover.py` 中的"面部60%+"规则**：已被竞品数据证伪。11张50万+播放爆款封面实测，肤色占比平均仅10%，人物估算12%。真实爆款封面是**场景叙事型**（展示冲突场景），不是面部特写型。旧版prompt中的面部60%+、100% bokeh背景等规则已废弃。
+- **`generate_cover_structured.py` 中的"三幕合一构图"**：仅针对真假千金这一部剧写死，不通用。已废弃。
+- 新封面生成层应基于3.0的7张模板卡+题材速查表重建。
 
 ## 封面生成四层结构（新框架）
 
@@ -34,7 +109,7 @@ description: |
 
 **生图工具**：以ChatGPT（GPT Imagine，底层DALL-E 3）为主。prompt用英文，含场景+人物+道具+光影+构图+技术参数。
 
-### 封面prompt的两种生产路径
+### ⚠️ 封面prompt的两种生产路径（2026-07-15实测）
 
 **路径A：模板卡正向生成**（旧方法）
 ```
@@ -58,7 +133,7 @@ description: |
 2. 反推prompt库提供**few-shot examples**（告诉ChatGPT"好的封面prompt长什么样"）
 3. 基于剧情内容+选卡结果+few-shot examples → 生成新的具体画面prompt
 
-### ChatGPT/GPT Imagine prompt硬约束
+### ChatGPT/GPT Imagine prompt硬约束（2026-07-15血泪教训）
 
 1. **自然语言描述具体画面**，不是关键词堆叠
 2. **不要用电影术语**（chiaroscuro, mise-en-scène），用plain English
@@ -80,7 +155,7 @@ description: |
 | 构图 | "center composition" | "man dominates left foreground, woman in center middle ground, trucks in right background" |
 | 长度 | 150-200词 | ~120词 |
 
-**数据纪律**：
+**⚠️ 数据纪律（血泪教训）**：
 1. 做封面分析前，**先查本机已有数据**——`distill/evidence/*/covers.json`（7语种×267条详细封面分析，每条含结构化枚举+10个中文描述字段+meta含views/title）。不要基于小样本（<50张）做全局结论。
 2. 自己频道的cover分析在 `data/own/channel_diagnosis/*_covers.json`，竞品的在 `distill/evidence/*/covers.json`，不要混淆。
 3. 267条竞品数据的实测结论（vs 直觉猜测差异巨大）：
@@ -92,6 +167,138 @@ description: |
    - 爆款分：各构图/色彩差异不大（7.3-7.5），说明**构图不是决定性因素**
 4. 封面蒸馏脚本：`distill_cover_analysis.py`，输入`distill/evidence/*/covers.json`，输出`data/cover_distill_stats.json`（构图/色彩/文字/人物/道具/题材/语种偏好的统计+交叉分析）。
 5. 封面分析prompt母本：`references/cover-analysis-prompt.md`（v2.0，蒸馏/诊断两套）。代码从.md文件按section header读取，不硬编码。
+## ⚠️ 竞品频道数据库清理流程
+
+当发现竞品数据库（`competitors_channels_all.json`，330+频道）中有非短剧频道时，需要**上下游全量清理**。
+
+### 非短剧频道识别方法
+
+关键词过滤有盲区（子串匹配，不覆盖变体）。需要**内容级验证**：检查视频标题是否含drama关键词。
+
+**已确认的非短剧类型**：
+- 企业/银行频道（如 Solusi BCA = 印尼BCA银行，视频标题是商业人物访谈）
+- 音乐人频道（如 Sal Priadi、El Teque Mentao，含"Official Music Video"）
+- 美妆/vlog频道（如 Misellia = 韩国美妆vlogger，191万订阅）
+- 喜剧/综艺频道（如 GJLS ENTERTAINMENT = 印尼喜剧）
+- 电影推荐频道（如 Top Cine & Tv = 西语电影Top10）
+- 短剧评论频道（如 REVIEW Sinetron pendek = 评论非自制）
+- 长剧推荐频道（如 Rafael Novelas y más = telenovela推荐）
+- 食品/烘焙品牌（如 BAKPIAKU = 印尼面包品牌）
+
+**误报风险**：关键词"wealth"/"insurance"/"bank"可能出现在drama视频标题中（如"she took all wealth"），不能单凭一个关键词判断。
+
+### 清理检查清单（上下游）
+
+| 文件 | 操作 |
+|------|------|
+| `competitors_channels_all.json` | 从channels[]中移除 |
+| `competitor_tiers.json` | 从channels[]中移除 |
+| `competitor_registry.json` | 按channel_id删除 |
+| `competitor_channels.json` | 移除 |
+| `competitor_data/latest.json` + `staging.json` | 移除 |
+| `competitor_data/api_progress.json` | 移除 |
+| `competitor_insights/channel_{id}.json` | DELETE文件 |
+| `competitor_insights/_analyzed_channels.json` | 移除 |
+| `competitor_snapshots/collect_progress.json` | 移除 |
+| `market_insights_*.json` | 检查是否有channel引用 |
+
+**注意**：`competitor_data/archive/` 下的历史文件不动（保留审计痕迹）。
+
+### 清理后验证
+
+```python
+# 扫描剩余频道是否有非drama信号
+# 检查所有频道的视频标题，找0 drama关键词的频道
+DRAMA_KW = ['ceo','billionaire','revenge','reborn','drama','episode','总裁','霸总','重生','逆袭','复仇','短剧']
+for ch in channels:
+    titles = [v['title'] for v in ch.get('videos_detail', [])]
+    drama_hits = sum(1 for t in titles if any(kw in t.lower() for kw in DRAMA_KW))
+    if drama_hits == 0:
+        print(f'⚠️ {ch["name"]} - 0 drama signals in video titles')
+```
+
+## ⚠️ 诊断层 vs 生成层封面规则对齐状态（2026-07-13）
+
+**结论：基本对齐，但有两个细微问题。**
+
+诊断层（diagnose_channel.py 的 SYNERGY_RULES + cover_analysis_own.py 的7维评分）和生成层（7张模板卡 + 四层prompt结构）使用**同一套规则体系**，不存在打架。7个评分维度（composition/person/color/emotion/prop/text/synergy）与模板卡维度一一对应。
+
+**问题1：SYNERGY_RULES 硬编码在 diagnose_channel.py:657-678**
+- 诊断层的封面×标题协同规则是写死在代码里的，不是从 `references/cover-analysis-prompt.md` 读取的
+- 如果改了模板卡的内容，诊断层不会自动同步
+- **修复方向**：SYNERGY_RULES 也从母本文件读取，跟封面分析prompt统一
+
+**问题2：诊断层是微观评分，缺宏观视角**
+- 诊断层的封面分析是单视频评分（"这条封面打几分"）
+- 模板卡是频道级策略（"你这个频道应该用哪张卡"）
+- **缺失**：频道级封面一致性检查（30条封面是否挤在同一张卡上 → 同质化风险）
+
+## ⚠️ YouTube官方培训 vs 我们的诊断系统覆盖度（2026-07-13）
+
+YouTube Partner Day（梁倩红/Cloe Tai/Ben Yu）强调的核心要求 vs 我们诊断系统的覆盖：
+
+| 官方要求 | 我们覆盖 | 状态 |
+|---------|---------|------|
+| CTR是第一开关 | 四象限归类+封面协同+逐视频CTR | 🟢 完整 |
+| 留存/AVD | 分段留存曲线+中段流失诊断 | 🟢 完整 |
+| 封面标题协同 | 8种协同模式+反模式检测 | 🟢 完整 |
+| 变现达标 | YPP门槛分项判定 | 🟢 完整 |
+| 发布频率 | upload_pace分析 | 🟢 完整 |
+| 系列化 | ❌ 已删除（短剧标准是完整发布） | 🟡 不适用 |
+| 流量来源 | 推荐/搜索/订阅占比分析 | 🟢 完整 |
+| 同质化风险 | ❌ 无 | 🔴 缺失 |
+| AIGC合规 | ❌ 无 | 🔴 缺失 |
+| 本土化质量 | ❌ 无 | 🔴 缺失 |
+| 频道品牌一致性 | ❌ 无 | 🔴 缺失 |
+| 内容垂直度 | ❌ 无 | 🔴 缺失 |
+
+**核心差距**：我们的诊断是视频级战术优化器，YouTube官方强调的是频道级战略资产。
+
+**实际可操作的同质化风险指标**（轻量预警，不做合规检测）：
+- 标题骨架重复率：最近30条中最大骨架占比 >40% ⚠️ >60% 🔴
+- 封面模式集中度：最常用封面构图占比 >50% ⚠️ >70% 🔴
+- 时长标准差：视频时长的离散程度 <5min ⚠️ <2min 🔴
+
+详见 `references/youtube-official-training-alignment.md`。
+
+## ⚠️ 常见陷阱
+
+-10. **竞品封面是AI生成的，不是真人实拍**（2026-07-15用户纠正）：短剧频道封面基本都是AI生成的（ChatGPT/GPT Imagine等），不是从剧中截取的真人照片。不要假设"AI生图质量不如真人"——问题出在prompt策略，不在AI能力上限。
+-9. **模板卡prompt≠好的生图prompt**（2026-07-15实测）：模板卡是"构图规则说明书"，ChatGPT需要的是"具体画面描述"。正确的用法：模板卡用于选卡，反推prompt库提供few-shot examples，然后基于剧情生成具体画面prompt。详见`references/cover-prompt-engineering.md`。
+-8. **ChatGPT/GPT Imagine的prompt硬约束**（2026-07-15）：不要用电影术语（chiaroscuro）、不要写像素级布局（60% center-low）、不要超过150词、色彩用描述不用HEX、末尾必须加`CONSTRAINTS: NO text, NO Chinese characters, NO gibberish in image`。
+-7. **反推prompt流程：先分析再生成**：vision模型反推时，先要求分析8个维度（场景/人物/色彩/光影/道具/构图/情绪/文字），再写生图prompt。直接跳到"写prompt"会产出泛泛的描述。
+-0. **Vue移动端表格→卡片模式**：面板前端ChannelAnalysis等页面的移动端适配有固定模式（容器class+CSS显隐+双份详情内容+overflow修复）。详见 `references/frontend-mobile-table-card.md`。
+- **YouTube官方培训蒸馏**：2026-07-13从YouTube Partner Day三份PDF蒸馏的核心要求（政策红线、算法因素、AI精品策略、本土化要求）。详见 `references/youtube-official-training-2026-07.md`。
+-0.5. **llm_analyze_channel.py 视频时长float格式化崩溃**：`latest.json` 中 `duration` 字段是 float（如 `185.0`），但 `{secs:02d}` 格式化需要 int。在 `prepare_channel_data()` 中对 `dur` 做 `int(dur)` 再格式化。2026-07-15发现并修复。**防御**：任何从 `latest.json` 读取的数值字段，格式化前先 cast 到目标类型。
+-1. **竞品频道过滤盲区（2026-07-13实测）**：`_is_drama_channel` 的 `non_drama_kw` 关键词黑名单有系统性盲区——用子串匹配，但很多非短剧频道名不含黑名单词。已漏网案例：银行企业频道（"Solusi BCA"，148万订阅）、美妆vlogger（"Misellia"，191万）、音乐人（"Sal Priadi"60.9万）、电影推荐（"Top Cine & Tv"10.9万）、食品企业（"BAKPIAKU"）。漏过原因：频道名不含"bank"/"news channel"/"official music"等黑名单子串；视频标题中有一条含"drama"骗过了2/20阈值。**防御手段**：定期用内容级扫描（检查视频标题是否含短剧核心关键词）做二次验证，不能只靠频道名过滤。2026-07-13一次性清理了10个非短剧频道。`Solusi BCA`（148万订阅印尼银行频道）和`Misellia`（191万韩国美妆频道）是最危险的污染源——会严重拉高市场avg值。
+0. **蒸馏数据就是专业提示词来源**：当用户问"需不需要专业提示词"时，先查已有蒸馏数据——蒸馏数据的构图/色彩/符号统计就是最专业的prompt来源，不需要额外的"专业提示词"。缺失的是把蒸馏发现编码进prompt的自动化层，不是提示词本身。先查已有再提方案。
+-2. **evidence.json澳门数据已被非短剧频道污染**：MO市场avg_views=1,091,706 vs median=8,690（125倍差距），因混入GMA Public Affairs（28M订阅新闻台）和OfficialGDRAGON（4.2M订阅K-pop）。文件末尾L1067已标注`"Use median for MO"`。SKILL.md中MO段落也已用⚠️标记。**使用MO数据时必须用median，禁止用avg**。
+-3. **data路径迁移后代码未同步（致命bug）**：`data/yt_analytics/` 已迁移到 `data/own/analytics/`，但 `diagnose_channel.py` 有**两处**仍读旧路径——line 3724（主诊断路径）和 line 3641（象限预计算路径）。2026-07-13发现line 3641是第二个藏身点。修复：两处都要改。**教训**：数据路径迁移时必须grep所有脚本的旧路径引用（`grep -rn "yt_analytics/" scripts/`），不只改注册表和文档。一次grep可能漏掉不同函数里的相同引用。
+-4. **上下游全量清理原则**：剔除频道时不能只改主库（competitors_channels_all.json），必须遍历所有下游文件：competitor_tiers.json、competitor_registry.json、competitor_data/*.json、competitor_insights/channel_*.json、_analyzed_channels.json、collect_progress.json、market_insights_*.json。2026-07-13清理10个频道涉及14个文件。
+-1. **蒸馏数据就是专业提示词来源**：当用户问"需不需要专业提示词"时，先查已有蒸馏数据——蒸馏数据的构图/色彩/符号统计就是最专业的prompt来源，不需要额外的"专业提示词"。缺失的是把蒸馏发现编码进prompt的自动化层，不是提示词本身。先查已有再提方案。
+0. **外部仓库 yt-drama-ops 会跟母本漂移**：`liuxigreen/yt-drama-ops` 是本skill的对外投影。当母本更新骨架公式、钩子分类、封面诊断规则时，外部仓库不会自动同步。已发现的漂移类型：骨架公式重命名（隐藏身份揭露型→被迫关系升温型等）、钩子数量扩展（7→12）、封面诊断规则修正（"面部60%+"已被实测推翻）、字段名变更（figure→composition）。**同步检查清单**：`skills/video-optimization/references/hooks.md`（骨架+钩子）、`skills/video-optimization/references/covers.md`（诊断标准）、`skills/video-optimization/SKILL.md`（流程+字段名）、`references/cover-prompt-guide.md`（prompt模板）。用户说"先修吧"时直接改+push，不要反复确认。
+1. **补蒸馏≠跑自有频道**：用户说"补蒸馏"是指竞品封面数据（`distill/evidence/*/covers.json`），用`batch_cover_analysis.py`或`daily_pipeline.py --step 5b`。不是`cover_analysis_own.py`（那是自有频道诊断）。搞混会浪费token和时间。
+2. **Vision模型不遵循复杂prompt**：doubao/mimo-v2.5对5部分JSON prompt（结构化+复现prompt+描述+评分+hook_type）只返回旧格式（中文描述字段），新字段全空。v2.0已精简为2部分，但仍需验证。结构化字段靠`distill_cover_analysis.py`后处理提取，不依赖LLM直接输出。
+3. **section header提取Bug**：`raw.find("## 诊断prompt")`会匹配到表格里的文字（如`| 自有诊断 | \`## 诊断prompt\` |`），不是真正的section header。必须按行匹配`line.strip() == "## 诊断prompt"`。
+11. **做分析前先查本机已有数据**：`distill/evidence/*/covers.json`有267条详细封面分析，`data/cover_distill_stats.json`有统计结果。不要用小样本（<50张）做全局结论——曾因只分析11张图就断言"文字一半没有"，实际数据显示92.5%有文字。
+12. **竞品频道库仍有非短剧漏网频道（2026-07实测）**：`data/competitors_channels_all.json`（330频道）经过多轮过滤仍含非短剧频道。已确认漏网：`Solusi BCA`（148万订阅，印尼BCA银行企业频道）、`Sal Priadi`（60.9万订阅，印尼歌手）、`El Teque Mentao`（1.1万订阅，委内瑞拉歌手）。漏过原因：①`_is_drama_channel`的non_drama_kw不覆盖"BCA"/"public affairs"等变体；②音乐频道有1条视频标题含"drama"字样骗过≥2阈值。**定期审计**：跑完竞品采集后用频道名+视频标题双重扫描，对top级频道（>100万订阅）人工抽查。
+13. **evidence.json MO市场数据被巨型频道污染**：`references/overseas-drama-director/evidence.json`的MO市场统计被GMA Public Affairs（2800万订阅新闻台）和OfficialGDRAGON（420万订阅K-pop）污染，avg=1,091,706 vs median=8,690（125倍差距）。文件末尾已标注警告，SKILL.md已用median。**规则**：任何涉及MO市场基准的分析，强制用median，禁止用avg。
+9. **封面数据没有hook_type，但标题有**：封面蒸馏的结构化字段只有emotion/composition/color_type，没有hook_type。但每条封面的`_meta.title`可以跟title_skeletons.json的hook关键词匹配来反向分桶。不要用emotion字段当hook_type的代理变量——直接用标题关键词匹配更准确。详见`references/cover-distillation-bucketing.md`。
+11. **找代码/模块/提示词先查知识图谱**
+12. **封面蒸馏数据≠自己频道数据**
+13. **竞品数据库有非短剧频道残留，新语种入库前必须审计**：`_is_drama_channel` 过滤器用频道名子串匹配，无法覆盖：频道名不含non_drama_kw的非短剧频道（如"Solusi BCA"银行、"Misellia"美妆vlogger）、视频标题含"drama"字样的非短剧频道（音乐人引用"drama"一词）。2026-07-13从330个频道中剔除10个非短剧频道。新频道入库时应同时检查频道名+视频标题内容，mega频道（>100万订阅）需逐个验证。：竞品在`distill/evidence/*/covers.json`，自己频道在`data/own/channel_diagnosis/*_covers.json`。混淆会导致结论偏差。
+7. **外部AI建议要验证再采纳，但Gemini审计抓到了真实bug**：Copilot说"面部60%"是错的（后来证明确实是错的）、"title/cover命令不存在"也是错的（脚本存在）。先查代码再决定是否采纳建议。**但2026-07-13 Gemini Flash-Lite在repopack审计中准确发现了covers.md和channel-diagnosis/SKILL.md与cover-prompt-guide.md的矛盾**——外部仓库中"面部需清晰占60%+"的规则与母本"不要面部占60%+特写"直接打架。蒸馏数据(214条)证明母本是对的：中景128(60%)、特写19(9%)、1人特写avg_score=6.4最低。教训：**外部AI审计有价值，但必须用本机蒸馏数据验证，不能盲信也不能盲否**。
+8. **蒸馏prompt位置**：封面分析prompt在`references/cover-analysis-prompt.md`（v2.0，蒸馏/诊断两套）。旧版在`daily_pipeline.py` L1399已废弃。`distill/evidence/*/covers.json`是蒸馏产出物。`docs/code-knowledge-graph.json`可快速定位模块。
+8. **封面蒸馏数据在.gitignore中**：`distill/` 目录被gitignore，蒸馏数据不会被commit。只有代码和prompt文件可以提交到git。
+**⚠️ 自有频道数据路径（2026-07整合）**：OAuth深度数据（留存/CTR/流量/受众）已从 `data/yt_analytics/` 迁移到 `data/own/analytics/`。所有脚本（collect_yt_analytics.py / collect_ctr.py / diagnose_channel.py / panel_v3.py）已同步更新路径。旧目录 `data/yt_analytics.bak` 待验证后删除。自有频道全部数据现在集中在 `data/own/` 下：`analytics/`（OAuth）、`channel_snapshots/`（公开数据）、`channel_diagnosis/`（诊断结果）。**⚠️ 路径迁移陷阱（2026-07-13血泪教训）**：diagnose_channel.py L3724曾遗留旧路径`data/yt_analytics/`未更新，导致四象限系统完全失效（所有频道退化为"表现平庸"，CTR/AVD维度诊断丢失）。症状：`channel_llm.quadrant_summary`不存在或全为"表现平庸"，`ctr_status`为空。排查方法：`grep -n "yt_analytics/" scripts/diagnose_channel.py` 确认无残留旧路径。
+12. **daily-diagnosis cron暂停陷阱**：诊断定时任务因"prompt改造期间避免旧prompt污染"被暂停（enabled=False）。prompt改造完成后必须手动重新启用，否则诊断不会跑。暂停原因记录在 cron jobs.json 的 `paused_reason` 字段。
+6. **封面分析prompt位置（2026-07统一）**：诊断和蒸馏共用统一母本 `references/cover-analysis-prompt.md`（共享核心+诊断附加+蒸馏附加），替代了旧的三处硬编码（cover_analysis_own.py 7维、daily_pipeline.py L1399 11字段、batch_cover_analysis.py 11字段）。改prompt只改母本，代码是投影。蒸馏产出物仍在 `distill/evidence/*/covers.json`。`docs/code-knowledge-graph.json`可快速定位模块。
+
+## 不可编造信息
+
+- README 中的架构名称（如"Nuwa双脑""专家脑"）必须来自用户实际告诉你的内容，不可自行包装美化
+- 被问到"这个是你写的吗"时，诚实回答——git blame 可查
+
 ## 模块1: 骨架公式
 
 跨语言验证的标题叙事原型（13种）
@@ -553,7 +760,7 @@ description: |
 - **标题有爆点，封面无证据**：标题写了cheating、reborn、secret billionaire、神医，但封面只有普通合照、风景或静态摆拍，缺乏视觉证据来支持标题的承诺，降低点击可信度。
 - **信息过散**：封面中人物过多（>5人）、文字过多、符号堆砌、场景杂乱。核心钩子在手机端缩略图上无法被一眼识别，分散注意力。
 
-## 封面生产流程（2026-07-15更新）
+## ⚠️ 封面生产流程（2026-07-15更新）
 
 **三层组装**：
 1. **选模板卡**（硬约束）：按hook类型从7张模板卡中选卡 → 取构图/色彩/文字留白规格。这些是223条竞品封面蒸馏出的统计规律，必须固定。
@@ -562,7 +769,7 @@ description: |
 
 **组装顺序**：选卡 → 填变量槽 → 附参考prompt → 输出最终生图prompt
 
-**亮度硬约束**：
+**⚠️ 亮度硬约束（2026-07-16数据修正）**：
 竞品数据：223条封面中暖色92%、明亮72%、偏暗仅15%。7张卡中6张暖色主导。
 prompt末尾必须加：
 `LIGHTING OVERRIDE: Bright natural lighting, subject well-lit and clearly visible, vibrant saturated colors, high contrast. The image must be eye-catching at small thumbnail size on mobile. Avoid dark/dim/moody/desaturated lighting.`
@@ -816,7 +1023,7 @@ prompt末尾必须加：
 - 女频：主角在中心（觉醒/发光），反派在周围（震惊/后退/跪地）。能量元素围绕主角。
 - 男频：主角居中（掌控/碾压姿态），反派在侧（惊恐/被碾压）。系统面板/金光/龙纹在背景。
 
-**色彩**：冷色为主（深蓝17%+冷蓝17%+绿色17%+紫色17%=冷色67%，暖色仅17%）。注意：此卡是7张中唯一冷色主导的题材，数据验证。深蓝/冷蓝为底，金色/红色能量光效作为视觉焦点。整体可偏冷暗但能量光效必须高亮。
+**色彩**：冷色为主（深蓝17%+冷蓝17%+绿色17%+紫色17%=冷色67%，暖色仅17%）。⚠️此卡是7张中唯一冷色主导的题材，数据验证。深蓝/冷蓝为底，金色/红色能量光效作为视觉焦点。整体可偏冷暗但能量光效必须高亮。
 
 **视觉符号**：闪电、数据面板、金光、神兽、魔法光束、系统界面、冠军服。符号要清晰、辨识度高，且在手机缩略图上可见。
 
@@ -906,7 +1113,7 @@ right-bottom corner blank for YouTube timestamp,
 
 ### 卡2：撞破背叛局（relationship）· 标准prompt
 
-**桶内统计**：11条 | 构图: center 73% / symmetry 18% | 色彩: 深蓝14%+金色14%+红色14% | 暖色50% / 冷色27% | 样本量偏少
+**桶内统计**：11条 | 构图: center 73% / symmetry 18% | 色彩: 深蓝14%+金色14%+红色14% | 暖色50% / 冷色27% | ⚠️样本少
 
 **【固定骨架】**（不可改）
 - 构图：对比构图（contrast），用肢体距离表达关系断裂（推离/背对/转身）
@@ -936,7 +1143,7 @@ top-left badge "FULL EPISODES", right-bottom blank for timestamp,
 
 ### 卡3：情绪爆点局（emotion）· 标准prompt
 
-**桶内统计**：4条[样本极少，仅供参考] | 构图: center 75% | 色彩: 暖色50% / 冷色0%
+**桶内统计**：4条[⚠️样本极少，仅供参考] | 构图: center 75% | 色彩: 暖色50% / 冷色0%
 
 **【固定骨架】**（不可改）
 - 构图：对比构图（contrast），定格受伤或反击的巅峰瞬间
@@ -995,9 +1202,9 @@ Text overlay area: bottom 15% dark gradient, top-left badge "FULL EPISODES",
 
 ### 卡5：时空改命局（time）· 标准prompt
 
-**桶内统计**：16条 | 构图: center 50% / symmetry 25% | 色彩: 金色20%+白色15%+粉色15% | 暖色55% / 冷色20% | 样本偏少
+**桶内统计**：16条 | 构图: center 50% / symmetry 25% | 色彩: 金色20%+白色15%+粉色15% | 暖色55% / 冷色20% | ⚠️样本偏少
 
-**此桶构图偏好与其他桶显著不同**：center构图73%远高于全局43%，说明时间/重生题材偏好单主角居中+时间符号环绕的构图。
+**⚠️ 此桶构图偏好与其他桶显著不同**：center构图73%远高于全局43%，说明时间/重生题材偏好单主角居中+时间符号环绕的构图。
 
 **【固定骨架】**（不可改）
 - 构图：中心构图（center），主角居中，时间符号环绕
@@ -1028,9 +1235,9 @@ Text overlay area: bottom 15% dark gradient, top-left badge "FULL MOVIE",
 
 ### 卡6：巨额补偿局（compensation）· 标准prompt
 
-**桶内统计**：7条[样本量偏少] | 构图: center 57% | 色彩: 金色21%+红色21%+黑色16% | 暖色58% / 冷色16%
+**桶内统计**：7条[⚠️样本少] | 构图: center 57% | 色彩: 金色21%+红色21%+黑色16% | 暖色58% / 冷色16%
 
-**此桶跪地出现率47%为全桶最高**——补偿题材的核心视觉是权力位置转换。
+**⚠️ 此桶跪地出现率47%为全桶最高**——补偿题材的核心视觉是权力位置转换。
 
 **【固定骨架】**（不可改）
 - 构图：对比构图（contrast），主角高位+反派低位（跪地/惊恐）
@@ -1060,7 +1267,7 @@ Text overlay area: bottom 15% dark gradient, top-left badge "FULL EPISODES",
 
 ### 卡7：异能觉醒局（system）· 标准prompt
 
-**桶内统计**：4条[样本极少] | 构图: center 75% | 色彩: 冷色67% / 暖色17% | 7张中唯一冷色主导
+**桶内统计**：4条[⚠️样本极少] | 构图: center 75% | 色彩: 冷色67% / 暖色17% | ⚠️7张中唯一冷色主导
 
 **【固定骨架】**（不可改）
 - 构图：中心构图（center），主角居中，能量元素环绕
@@ -1106,7 +1313,106 @@ Text overlay area: bottom 15% dark gradient, top-left badge "FULL EPISODES",
 
 
 
-## 模板卡变量槽定稿（2026-07-13）
+## ⚠️ 封面分析prompt统一状态（2026-07-11）
+
+**⚠️ cover-analysis-prompt.md 落后于skill（2026-07-13发现）**：`references/cover-analysis-prompt.md` 是v2.0（7月11日），但skill的7张模板卡和hook-specific框架是7月12-13日更新的。诊断层的封面分析仍在用通用7维评分，没有按hook类型选模板卡评分。**待升级到v3.0**：加入模板卡匹配和hook-specific评分维度。
+
+### ⚠️ cover-analysis-prompt.md 需升级到v3.0（2026-07-13发现）
+
+母本 `references/cover-analysis-prompt.md` 是 v2.0（7月11日），但本skill在7月12-13日升级了封面框架（7张模板卡、四层结构、hook_cover_mapping、七语种微调、变量槽）。诊断prompt仍在做通用7维评分，不区分hook类型。**待升级方向**：在诊断prompt中加入模板卡匹配逻辑——先判断视频属于哪张卡，再按该卡的构图/色彩/符号规格评分。
+
+## ⚠️ 面板封面生成的两条路径（2026-07-15审计确认）
+
+面板有两条封面生成路径，走的框架版本不同：
+
+| 路径 | 端点 | 走什么 | 框架版本 | 状态 |
+|------|------|--------|---------|------|
+| **一键上架** | `/proposal` → `_call_duanju_agent` | Agent加载skill_view(short-drama-youtube) | v3.1（7张模板卡+四层结构） | ✅ 最新 |
+| **优化版封面** | `/generate` action=cover_optimized | 代码直接读prompt文件 | 旧版（硬编码"以千金之名"模板） | ⚠️ 过时 |
+
+**审计证据**（2026-07-15）：
+- `/proposal` Agent输出的封面指令正确使用了钩子对应的模板卡构图（identity→contrast, system→center, reversal→center）
+- 四层结构完整（场景+特效+人物+文字层）
+- 语种本地化正确（INDO DUB / FULL EPISODES badge）
+- 情绪光影对比正确（暖金 vs 冷蓝灰）
+
+**cover-analysis-prompt.md v2.0→v3.0升级不影响一键上架**，只影响竞品蒸馏和自有诊断的封面评分。一键上架走Agent→skill路径，不经过这个文件。
+
+### 现状：三套prompt并行，统一母本为规格文档
+
+| 脚本 | prompt位置 | 维度 | 用途 |
+|------|-----------|------|------|
+| `cover_analysis_own.py` | 从 `references/cover-analysis-prompt.md` 读取，fallback旧7维 | 7维+打分(0-10) | 自有频道诊断 |
+| `daily_pipeline.py` | 从母本读取，fallback旧11字段 | 11维+结构化 | 竞品蒸馏 |
+| `batch_cover_analysis.py` | 从母本读取，fallback旧11字段 | 11维+结构化 | 批量竞品分析 |
+
+母本 `references/cover-analysis-prompt.md` 是规格文档（5部分：结构化枚举+复现prompt+中文描述+诊断评分+hook_type），不是直接喂给vision模型的prompt。
+
+### Vision模型prompt复杂度硬上限（血泪教训）
+
+doubao/ark-code-latest 和 mimo-v2.5 能稳定处理的JSON输出prompt约**600-800字符**。超过此限：
+- JSON截断率显著升高
+- LLM倾向返回"学过的"旧格式，忽略新指令
+- 新增字段（结构化枚举/复现prompt/hook_type）全部为空
+
+**正确的统一策略**：
+1. **不替换原有prompt**——旧prompt经验证、稳定可靠
+2. **在代码层统一输出格式**——`_convert_to_diagnosis_format()` 处理3种LLM输出变体
+3. **母本作为规格文档**——不是直接喂给vision模型
+4. **未来优化**：只追加1-2个简单枚举字段（如`scene_type`），不加复现prompt等复杂输出
+
+### 统一prompt各部分的取舍（用户反馈）
+
+- **hook_type**（钩子归类）：标题分析已做过，封面分析不需要重复。**删除。**
+- **诊断评分**（7维打分）：给自有频道诊断用的，竞品蒸馏不需要。**分离。**
+- **复现prompt**（80-120词英文）：太长LLM不遵循。**精简为关键词提取（场景+人物+色彩+道具）。**
+- **结构化枚举**：机器可读，统计聚合核心。**保留，这是最有价值的部分。**
+
+### API key注意
+
+`batch_cover_analysis.py` 的 `load_config()` 查找 `XIAOMI_API_KEY`，但VPS环境变量名是 `XIAOMICODING_API_KEY`。需要 fallback。已修复。
+
+### 下游数据依赖
+
+`distill_cover_analysis.py` 从蒸馏JSON读取：
+- 中文字段（人物/色彩/构图/道具）→ 关键词提取
+- `结构化` 子对象（person_count/color_type/composition/has_text/emotion/identity_visible）→ 统计聚合
+
+`diagnose_channel.py` 从诊断JSON读取：
+- `avg_scores.avg_*_score` → 频道健康度
+- `封面×标题协同.score` → 协同评分
+- `details[].person_score` 等扁平字段 → 视频级评分
+
+**改prompt时必须确保这两个下游消费者的字段名不被破坏。**
+
+### 已知bug
+
+- `cover_analysis_own.py` 旧版有 `"API异常: {}"`.format(e)` 的bug（.format在dict上调用而非string），已在v1.0修复为 `"API异常: {}".format(e)`
+
+## 封面分析prompt v2.0（2026-07-11更新）
+
+**母本**：`references/cover-analysis-prompt.md`（在duanju repo里，不在skill里）
+**两套prompt**：
+- **蒸馏prompt**（915字）：结构化枚举 + 11个中文描述字段。用于竞品封面分析（batch_cover_analysis.py / daily_pipeline.py step 5b）
+- **诊断prompt**（1012字）：结构化枚举 + 7维打分。用于自有频道封面诊断（cover_analysis_own.py）
+- 共用核心：结构化枚举（person_count/scene_type/composition/shot_scale/color_type/emotion/has_text/text_content/text_position/identity_visible/symbols）
+
+**已删除的字段**：
+- hook_type — 标题分析已覆盖，封面不重复
+- 复现prompt — 80-120词太长，vision模型不遵循。用symbols字段（≤4字视觉符号）替代
+- 诊断评分 — 只在诊断场景用，蒸馏不需要
+
+**代码层**：`_load_cover_prompt_template(mode)` 按行匹配section header提取对应code block。`_convert_to_diagnosis_format()` 兼容3种LLM输出格式（新格式/旧嵌套/旧扁平）。
+
+## 封面蒸馏按Hook分桶聚合
+
+封面蒸馏数据结构化字段没有 `hook_type`。要按hook类型分别编码prompt，需用标题文本+中文描述字段反向匹配hook标签。
+
+→ 完整方法和2026-07-12实测聚合结果见 `references/cover-distillation-bucketing.md`
+
+**关键结论**：5个主桶（identity 103/relationship 57/reversal 32/system 20/compensation 19）样本充足可独立统计；time(11)和emotion(9)需全局回退。
+
+## ⚠️ 模板卡变量槽定稿（2026-07-13）
 
 7张模板卡的prompt增加5个剧情事实类变量槽，保留蒸馏默认值和软约束机制：
 
@@ -1125,6 +1431,14 @@ Text overlay area: bottom 15% dark gradient, top-left badge "FULL EPISODES",
 - 改完一张卡贴diff即可，不用全贴
 
 **状态**：模板卡1（身份反差局）已在外部仓库 yt-drama-ops 实现并推送（commit f065131）。剩余6张卡待补。外部仓库short-drama-youtube-3.1.md已同步更新变量槽表格+软约束说明+范例变量填充。
+
+## ⚠️ 待补：题材→符号映射层
+
+7张模板卡覆盖的是"钩子心理"（为什么点），不是"题材视觉"（画什么场景）。目前缺少：
+- 题材关键词→推荐模板卡的自动映射
+- 各题材的场景符号（末世=废墟/武器、萌宝=婴儿/温馨客厅、职场=会议室/合同）
+
+**蒸馏数据**：`distill/evidence/{7语种}/covers.json` 共267条（.gitignore不入git）。缺口：神医/末世/校园/替身题材（竞品库本身少）。`distill_cover_analysis.py` 从中文描述文本后处理提取结构化字段。
 
 ## 非核心语种降级策略
 
@@ -1158,7 +1472,7 @@ Text overlay area: bottom 15% dark gradient, top-left badge "FULL EPISODES",
 
 ## 封面指南
 
-**Vision模型prompt复杂度上限**：doubao/ark-code-latest 和 mimo-v2.5 能稳定处理的prompt约600-800字符输出JSON。超过此限JSON截断/格式错误率显著升高，LLM会倾向返回"学过的"旧格式。设计封面分析prompt时，优先保持简洁。复杂输出（如"复现prompt"80-120词、诊断评分7维、hook_type归类）应作为独立调用或后处理，不要塞进同一个prompt。
+**⚠️ Vision模型prompt复杂度上限**：doubao/ark-code-latest 和 mimo-v2.5 能稳定处理的prompt约600-800字符输出JSON。超过此限JSON截断/格式错误率显著升高，LLM会倾向返回"学过的"旧格式。设计封面分析prompt时，优先保持简洁。复杂输出（如"复现prompt"80-120词、诊断评分7维、hook_type归类）应作为独立调用或后处理，不要塞进同一个prompt。
 
 **composition**：核心构图原则是‘对比与聚焦’。优先使用‘左右/前后对比构图’（展示身份冲突）或‘中心三角/放射构图’（聚焦主角或关键冲突）。关系题材用双人紧密构图（拥抱、对峙），男频打脸用主角居中+背景压迫构图。景别以中景和中近景为主，确保人物表情和关键道具清晰可见。
 
@@ -1171,6 +1485,52 @@ Text overlay area: bottom 15% dark gradient, top-left badge "FULL EPISODES",
 **visual_symbols**：建立符号库并快速调用：身份类（西装、工装、豪门徽章）、情感类（婚戒、离婚协议、泪痕）、权力类（王座、龙纹、保镖）、冲突类（枪、破碎物、雨夜）、逆袭类（金光、闪电、系统面板）。符号要清晰、辨识度高，且在手机缩略图上可见。
 
 **text**：封面文字是‘钩子的钩子’，应极简。建议不超过5-7个词（或3-5个中日韩字）。只提炼最核心的承诺或情绪词，如‘Secret CEO’、‘Reborn’、‘TRAICIÓN’、‘正体判明’。文字颜色需高对比，位置不遮挡关键表情和动作。不要将长标题复制到封面。
+
+
+## 标签策略
+
+**universal_rules**：
+- 标签的核心功能是‘告诉算法和观众这是什么内容’，需围绕‘题材 + 情绪 + 格式 + 语言/文化’四层搭建。
+- 标题标签少而精（1-5个），用于定义核心题材；描述标签多而广（10-20个），用于扩展搜索流量和细分受众。
+- 大小写标签可共存但需有策略，标题用一种，描述可保留系统识别的不同形态。
+- 定期更新标签库，关注新兴题材标签（如AI、心声、系统），但要确保与视频内容实质相关。
+
+**title_tags**：
+- #ceolovestory
+- #cdrama
+- #drama
+- #minidrama
+- #dramachino
+- #短編ドラマ
+- #逆襲
+- #短劇
+
+**description_tags**：
+- shortdrama
+- chinesedrama
+- ceo
+- romance
+- love
+- revenge
+- engsub
+- kdrama
+- amor
+- drama
+- cinta
+- dramachinês
+- Короткая драма
+- shortfilms
+
+**combination_pattern**：采用‘基线标签 + 尖刺标签’组合模式。基线标签是每个视频固定使用的频道/品类标签（如 #shortdrama, #minidrama）。尖刺标签是根据当集剧情特化的题材和情绪标签（如 #cinderella, #reborn, #revenge）。在此之上，叠加跨文化截流标签（如 cdrama, kdrama）和语言标签（如 engsub, español）。
+
+**by_language**：
+- en: {"title_tags": ["#ceolovestory", "#drama", "#LOVE", "#minidrama"], "description_tags": ["shortdrama", "ceo", "cinderella", "romantic", "engsub", "kdrama", "romance", "revenge", "usa"]}
+- es: {"title_tags": ["#dramachino", "#cdrama", "#amor", "#drama"], "description_tags": ["amor", "peliculacompleta", "drama", "kdrama", "romance", "ceo", "español", "artesmarciales", "Venganzafemenina"]}
+- id: {"title_tags": ["#Full", "#Minidrama", "#drama", "#cdrama"], "description_tags": ["drama", "ceo", "filmcina", "cinta", "chinesedrama", "drakor", "romansa", "dracin", "dramapendek"]}
+- jp: {"title_tags": ["#短編ドラマ", "#中国ドラマ", "#全話", "#日本語吹き替え"], "description_tags": ["短編ドラマ", "ショートドラマ", "逆襲", "中国ドラマ", "全話フル", "ラブコメ", "復讐", "溺愛婚", "電撃婚"]}
+- pt: {"title_tags": ["#dorama", "#Reviravolta"], "description_tags": ["drama", "Romance", "Amor", "FilmeCompleto", "CEO", "dramachinês", "Vingança", "DoramaDublado", "Português"]}
+- tr: {"title_tags": [], "description_tags": ["MiniDizi", "TürkçeDublaj", "KısaDizi", "RomantikDizi", "AşkDizisi", "CEO", "Cinderella", "Cdrama", "Kdrama"]}
+- zh_tw: {"title_tags": ["#逆襲", "#短劇", "#爽劇", "#甜寵"], "description_tags": ["短劇", "霸總", "ChineseDrama", "追妻火葬場", "大陸短劇", "短劇全集", "重生", "穿越"]}
 
 
 ## 发布时间策略
@@ -1220,6 +1580,99 @@ Text overlay area: bottom 15% dark gradient, top-left badge "FULL EPISODES",
 - 标签是描述的‘尾部引擎’，按语义分组（题材、情绪、格式、语言），不要无序堆砌。
 
 
+## 竞品频道深度分析工作流
+
+### 完整数据管线（三步链）
+
+竞品分析分三步，每步产出下一步的输入。**缺任何一步都会导致下游失败。**
+
+```
+latest.json (采集数据)
+    ↓ distill_competitors.py
+channel_{id}.json (Python级: 标签+标题模式+内容分析)
+    ↓ llm_analyze_channel.py
+channel_{id}.json + llm_analysis.distill (LLM深度: why+what+钩子+封面策略)
+    ↓ market_insights.py
+market_insights_{lang}.json (跨频道市场洞察: 题材趋势+竞争格局+机会点)
+```
+
+| 脚本 | 输入 | 产出 | 速率限制 |
+|------|------|------|---------|
+| `distill_competitors.py` | `latest.json` | Python级分析写入 `channel_*.json` | 无限制 |
+| `llm_analyze_channel.py` | `latest.json` + `channel_*.json` | `llm_analysis.distill` 追加到 `channel_*.json` | 5 RPM (13秒/频道) |
+| `market_insights.py` | `channel_*.json` (有distill的) | `market_insights_{lang}.json` | 无限制 |
+
+**⚠️ market_insights.py 数据门槛**：
+- 每个语种至少 **3个频道** 同时满足：
+  1. 有 `llm_analysis.distill` 数据（即经过 `llm_analyze_channel.py` 分析）
+  2. 均播 ≥ 10,000（`avg_views >= 10000`，从 `latest.json` 计算）
+- 不满足的语种会被跳过，全部不满足则脚本以 exit code 1 退出
+- **常见失败原因**：`llm_analyze_channel.py` 未运行或未跑完 → 0个频道有distill → 无法生成洞察
+
+### 日常追踪流程
+
+1. **每日采集**：从YouTube采集最新频道数据，更新频道列表和基础指标（订阅数、视频数、层级划分）
+2. **筛选新频道**：每个语种优先选择未分析过的新频道，累计到330个总池
+3. **每日深度分析**：从新频道中选取5个（覆盖不同语种和层级）进行 `distill_competitors.py` 分析，输出：
+   - 频道基础信息（ID、名称、订阅、层级）
+   - 题材标签和标题模式总结
+   - 播放量分布（平均、最高）
+   - 增长原因分析
+   - 热门标题示例
+   - 标签策略总结
+4. **数据存储**：分析结果存入 `data/competitor_insights/channel_{channel_id}.json`，总索引存入 `_analyzed_channels.json`
+5. **LLM深度分析**：`llm_analyze_channel.py --all` 对所有未分析频道执行LLM深度洞察，产出 `llm_analysis.distill`（含 why:增长原因/受众/阶段, what:题材/标题公式/钩子/封面策略）。耗时 ~58分钟（271频道 × 13秒）
+6. **市场洞察生成**：`market_insights.py` 聚合同语种所有频道的distill数据，用LLM提炼跨频道市场规律（题材趋势/竞争格局/内容空白点）。需≥3个频道均播≥1万
+7. **生成日报**：整理最新5个频道分析结果，输出结构化报告
+
+### ⚠️ distill_competitors.py 行为说明
+
+脚本分三步：①五层筛选（filter_by_tier）→ ②每日追踪（track_daily，记录订阅+播放量）→ ③深度分析（只分析未在tracker中的新频道）。
+
+**当所有频道都已分析过时**，脚本输出"所有筛选频道都已分析过，只做追踪"，不会触发新的深度分析。此时仍会执行筛选和追踪（更新面板数据），但不会有新的 `channel_*.json` 产生。
+
+**数据结构参考**（2026-07实测）：
+- `data/competitor_data/latest.json`：**list**（非dict），每条含 `channel_id, name, language, subscribers, tier, collected_at, video_count, avg_views, videos[], country, is_drama`
+- `data/competitor_insights/channel_{id}.json`：每条含 `channel_id, name, language, subscribers, tier, url, total_videos, growth_reasons[], video_analysis{total_videos, breakout_count, sample_titles, top_videos, avg_views}, content_tags[], deep_analysis{}, videos_detail[], analysis_text[], thumbnail_url, analyzed_at, avg_views, top_covers[]`
+- 注意：insight文件用 `videos_detail`（非 `videos`），`video_analysis.top_videos` 用于播放量排序
+
+### 层级划分标准
+
+- `顶级`：订阅 > 1,000,000
+- `头部`：100,000 < 订阅 ≤ 1,000,000
+- `中部`：10,000 < 订阅 ≤ 100,000
+- `起步`：1,000 < 订阅 ≤ 10,000
+- `新号`：订阅 ≤ 1,000
+
+### 最新观察（2026-06）
+
+- **印尼市场**：新号几乎全部主打霸总题材，emoji在标题开头标记情绪的做法开始流行，能有效提升点击率
+- **日语市场**：已经形成成熟的套路：统一「【日本語吹き替え】」前缀，标签体系固定为「基线标签 + 尖刺标签」，题材分化明显——男频偏复仇逆袭，女频偏霸总甜宠
+- **霸总题材**：在所有市场都是基本盘，印尼新号30个视频稳定布局，标签策略围绕 `Pembalikan`（反转）、`CEO`、`cinta`（爱情）重复强化
+- **标题长度**：印尼市场平均标题长度约80-90字符，日语约70字符，均符合之前总结的跨语言规律
+
+## Schema 文档（脱敏数据说明）
+
+当需要向外部读者/审阅AI说明"系统用了什么数据"但又不暴露真实数据时，参照以下格式产出 schema 文档：
+
+```
+docs/data-schemas/
+├── channel_diagnosis.schema.md      诊断JSON字段说明+脱敏样本
+├── channel_analytics.schema.md      YT Analytics采集字段
+├── channel_snapshot.schema.md       每周快照结构
+├── ctr_reports.schema.md            Reporting API字段
+├── retention.schema.md              留存曲线数据结构
+├── distill.schema.md                蒸馏数据结构（每语种）
+├── competitor.schema.md             竞品数据
+└── proposal_history.schema.md       上架历史
+```
+
+**编写规则**：
+- 每个 md 包含：数据来源（哪个API/脚本产出）、字段名+类型+含义、脱敏样本（1条JSON，video_id→VID_xxx，标题→示例，播放数→0）
+- 脱敏变换：频道名→CHANNEL_A，视频ID→VID_001，标题→"示例标题（已脱敏）"，播放数→0，订阅数→0
+- 保留字段结构、嵌套层级、字段名称，只替换数值和标识符
+- 不包含 API keys、OAuth 凭证、真实 token 信息
+
 ## 增长策略
 
 **universal**：
@@ -1255,6 +1708,225 @@ Text overlay area: bottom 15% dark gradient, top-left badge "FULL EPISODES",
 - 描述标签无序堆砌：标签之间没有逻辑关系，只是随机罗列，不利于算法识别。
 - 忽略语言/文化标签：未使用目标市场的语言标签（如 español、日本語字幕）或文化截流标签（如 cdrama）。
 
+
+## 外部仓库同步（yt-drama-ops）
+
+**仓库**：`github.com/liuxigreen/yt-drama-ops`（SSH: `git@github.com:liuxigreen/yt-drama-ops.git`）
+
+**关系**：本skill（short-drama-localhost.localdomain 3.1.0）是唯一母本。yt-drama-ops 是对外发布的 skill 包，内容是母本的投影。改知识只改母本，然后同步到外部仓库。
+
+**仓库结构**：
+```
+yt-drama-ops/
+├── skills/
+│   ├── channel-diagnosis/    # 频道诊断（SKILL.md + references/{quadrant,retention,degradation}.md）
+│   ├── video-optimization/   # 单视频优化（SKILL.md + references/{hooks,covers}.md）
+│   ├── publishing/           # 上架策略（SKILL.md + references/{tags,timing,description}.md）
+│   └── persona/              # 人格层（SKILL.md）
+├── knowledge/{lessons,validated,pending}.md  # 学习回路
+├── references/short-drama-youtube-3.1.md     # 母本完整副本（需手动同步）
+├── references/cover-prompt-guide.md          # 封面生图prompt指南（四层结构）
+├── examples/                 # 3个使用示例
+├── templates/report-template.md
+└── scripts/scrape-channel.sh
+```
+
+**同步检查清单**（母本改概念时必须遍历）：
+
+| 母本改动 | 需同步的外部文件 |
+|---------|----------------|
+| 骨架公式 | `skills/video-optimization/references/hooks.md` |
+| 钩子体系 | `skills/video-optimization/references/hooks.md` + `skills/publishing/SKILL.md`（钩子引用）+ `skills/video-optimization/SKILL.md` |
+| 封面规则/模板卡 | `skills/video-optimization/references/covers.md` + `skills/channel-diagnosis/SKILL.md`（步骤3/9）+ `knowledge/validated.md` |
+| 标签策略 | `skills/publishing/references/tags.md` |
+| 发布时间 | `skills/publishing/references/timing.md` |
+| 诊断标准/阈值 | `skills/channel-diagnosis/SKILL.md` + `skills/channel-diagnosis/references/quadrant.md` |
+| 任何数据结论 | `knowledge/validated.md`（证据等级） |
+| 母本版本号 | `references/short-drama-youtube-3.1.md`（完整副本） |
+
+**⚠️ 概念残留陷阱**：同一个概念（如"面部60%"）会散布在5-6个文件中（SKILL.md、references/covers.md、channel-diagnosis步骤3/9、validated.md）。改母本时必须 grep 整个外部仓库找所有残留引用，不能只改一处。2026-07-12 实测：修了2处后又发现3处残留。2026-07-13 复查：covers.md和channel-diagnosis/SKILL.md中"面部需清晰占60%+"已修正为"面部清晰可见，中景/中近景为主（特写仅占9%）"。**验证命令**：`grep -rn "60%" skills/ references/` 确认无残留。
+
+**⚠️ 同步执行顺序**：①先改母本 → ②grep外部仓库找所有变体引用（不只精确匹配，还要搜同义词如"面部特写"/"face"/"60%"） → ③逐个文件patch → ④更新CHANGELOG → ⑤commit+push。不要"先改一处看看反馈"再改其他处——用户期望一次修完。
+
+**⚠️ SSH推送**：yt-drama-ops 用 SSH 推送（`git@github.com:liuxigreen/yt-drama-ops.git`），VPS 上有 `~/.ssh/id_ed25519`。clone 后需 `git remote set-url origin git@github.com:...` 切换到 SSH。
+
+## 增量频道诊断引擎
+
+### 执行流程
+
+增量频道诊断是日常频道运营中每周/每日执行的质量检查流程：
+
+```
+1. 加载频道最新快照（已自动生成每日快照脚本）
+2. 识别新增视频（跳过已诊断视频，只增量处理）
+3. 补全缺失封面分析（调用MiMo封面分析API）
+4. 对新增视频逐题打分（标题长度+钩子词+标签+发布时间+互动）
+5. LLM深度分析：钩子强度评估+标题优化+封面协同评估
+6. 频道级综合健康评分 + 输出问题列表 + 战略建议
+7. 保存诊断结果到 data/own/channel_diagnosis/{name}_latest.json
+```
+
+## ⚠️ 四象限分类 v1.1 更新（2026-07-12）
+
+**标题超卖分型改为hook_1pct**：旧版按AVD分开头型(<10%)/中段型(10-15%)——AVD低只说明流失严重，定位不了流失段。新版：
+- hook_1pct < 80% → 开头型 → 行动：重剪前30秒cold open
+- hook_1pct ≥ 80% → 中段型 → 行动：每3-5分钟加re-engagement hook，或压缩时长
+- B/C档无留存数据 → 只标"标题超卖（未分型）"，禁止猜
+
+**新增"数据异常待核实"桶**：hook_1pct < 5%的视频不进任何象限（尤其禁止进选题失败），在报告末尾单独列出。留存1%不是选题问题，是事故。
+
+**CTR阈值统一为6/2.5**：全文统一——>6%健康，2.5-6%观察区，<2.5%预警，<1.5%严重预警。旧8%仅保留为"标杆"级别。此阈值来自1-2小时超长短剧基线，短视频频道需自行校准。
+
+## 新题材协议（2026-07-12）
+
+当检测到频道题材不在已验证范围内（如民国谍战、赛博朋克、丧尸、电竞等）时：
+
+### 数据层（不降级）
+- 四象限归类、瓶颈定位、订阅转化、发布节奏等数据层诊断照常运行，不受题材影响
+- CTR/AVD/留存是物理指标，题材无关，结论置信不降
+
+### 内容层（显式降置信）
+- 封面/标题/标签建议必须显式声明："该题材未入库已验证数据，以下为通用模板卡 + 最近邻题材（注明借用哪个）的迁移推断，置信有限。"
+- 封面符号：从通用模板卡出发，借用最相似的已验证题材符号（如"谍战"借"复仇/打脸"的冷色调+对峙构图），明确标注借源
+- 标题句式：用通用骨架+反转词，题材行话由用户补充
+
+### 自动建档
+- 在 `knowledge/pending.md` 自动创建该题材条目
+- 2-3轮CTR数据回流后：有效假设进 `validated.md`，失效进 `lessons.md`
+- 同一题材被验证≥3次 → 提示写入母本 genre-symbols 映射表，题材从盲区转正
+
+## ⛔ 诊断框架更新（2026-07-14对齐内部引擎）
+
+### 诊断建议必须区分原创频道和recap频道
+recap频道（末世manga/manhwa recap等）的内容是已有的剧，不是自己拍的。诊断建议不能套用原创频道的模板。
+- ❌ "优化中段剧情节奏" → ✅ "选节奏更紧凑的剧，剪掉无聊铺垫"
+- ❌ "3.5分钟插反转" → ✅ "剪辑更狠，直接进冲突"
+- ❌ "设计回弹点" → ✅ "选中段不掉链子的剧"
+- ✅ "日更"和"优化标题+封面"对两种频道都适用
+判断recap频道：标题有recap/manga/manhwa/comic/OP MC等关键词，或视频时长>30分钟的连续剧情。
+
+### 赞率必须用加权平均
+`total_likes / total_views × 100`，不是各视频赞率的简单平均。趋势滑窗也用加权平均。
+
+### 播放分布遵循幂律分布
+头部视频播放占比高是YouTube推荐系统的正常机制，严禁列为"爆款依赖症"。诊断重点是"头部视频为什么爆了→如何复制这个模式（Format Replication）"。
+
+### 封面×标题协同是"入场券"而非"胜负手"
+协同≥7后，播放量由标题钩子强度和算法推荐决定，不是封面。应优先优化标题钩子密度。
+
+### 禁止项
+- 禁止在无验证数据时给出高置信的题材特定建议
+- 禁止跳过 pending.md 建档
+- 禁止用训练语料中的印象代替真实数据
+
+## 常见问题模式（跨语言验证）
+
+按出现频率排序：
+
+1. **3分钟留存率极低**：1%留存很高（90-98%）说明开头hook好，但3分钟留存骤降到15-20%——中段剧情拖沓、节奏崩塌，缺乏连续钩子拉住观众。**修复策略**：每3分钟必须安排一个小反转或小冲突，避免大段叙事无起伏。
+
+2. **赞率过低**：赞率<1%在短剧品类都是不健康区间，赞率低说明内容未激发足够情绪共鸣或互动意愿，会影响算法推荐池扩大。**修复策略**：标题必须明确承诺情绪终点（"后悔"、"打脸"、"跪求"），封面必须定格最高张力瞬间，让观众看完后有表达情绪的冲动。
+
+3. **爆款依赖严重**：头部3条视频贡献>60-75%总播放，其余视频播放极低——频道抗风险能力弱，爆款过期后迅速沉寂。**修复策略**：建立稳定题材矩阵，每个题材固定3-5个高验证钩子模式，持续测试新题材但保证基本盘稳定输出。
+
+4. **系列化运营已不适用**（2026-07-14删除）：蒸馏数据显示所有7个语言市场的标准发布模式是"一集一个完整故事"，Part 1/2/3拆集不符合市场规范。印尼用`#Full`标签标记完整短剧。系列化分析已从诊断系统中删除。**注意**：这是短剧频道的特殊性，通用YouTube频道仍可使用系列化策略。
+
+5. **标题钩子组合不全**：多数视频只有单一钩子（仅情绪/仅身份），缺乏至少两种钩子组合（情绪+反转、身份+关系），点击率无法突破。**修复策略**：强制每个标题至少组合两种钩子，常见最强配对：`identity + reversal`，`emotion + identity`，`relationship + reversal`。
+
+6. **封面文字质量极低**：封面文字过多或过少，或者文字无法提炼核心钩子，降低视觉转化。**修复策略**：封面文字仅保留1-3个核心词（如"CEO"、"Reborn"、"TRAICIÓN"），放在边角不遮挡人物，文字对比要足够高，手机缩略图能一眼识别。
+
+7. **SEO/搜索流量极低**：搜索流量占比<5%（健康门槛>15-20%），未能主动获取精准流量。**修复策略**：描述标签严格执行"基线标签 + 尖刺标签"模式，每条视频固定5个基线标签（品类+语言）+ 3-5个尖刺标签（当集剧情题材）。
+
+### ⚠️ YouTube频道改名导致数据管道断裂（2026-07-10）
+
+当YouTube频道在平台上改名时（如 Luna Drama Estudio → Macarons Drama），以下文件/目录全部失效：
+
+1. **`our_channels.json` 注册表** — 频道名不匹配新名字
+2. **`channel_analysis_latest.json`** — API按名字匹配诊断，找不到就跳过
+3. **`channel_diagnosis/` 目录** — 诊断文件名用旧名字，面板找不到
+4. **`channel_snapshots/` 目录** — 快照文件名用旧名字
+
+**修复步骤**：
+```bash
+# 1. 更新注册表
+python3 -c "
+import json
+fp = 'data/own/our_channels.json'
+d = json.load(open(fp))
+for ch in d['channels']:
+    if ch['channel_id'] == '<NEW_CHANNEL_ID>':
+        ch['name'] = '<New Name>'
+json.dump(d, open(fp, 'w'), indent=2, ensure_ascii=False)
+"
+
+# 2. 重命名诊断文件
+cd data/own/channel_diagnosis/
+for f in Old_Name_*.json; do
+    mv "$f" "$(echo $f | sed 's/Old_Name/New_Name/')"
+done
+
+# 3. 删除旧快照，重新跑快照
+rm data/own/channel_snapshots/Old_Name_*.json
+python3 scripts/channel_weekly_snapshot.py
+```
+
+**根因**：`_api_channel_analysis()` 遍历 `channels` 列表按名字查找诊断文件。名字不匹配→诊断丢失→面板显示空白。
+
+### 健康度评分标准
+
+| 分数区间 | 等级 | 含义 |
+|---------|------|------|
+| 8-10 | A | 优秀，策略正确，维持即可 |
+| 7-7.9 | B+ | 良好，少量问题可优化 |
+| 6-6.9 | B | 中等，存在2-3个关键问题需解决 |
+| 5-5.9 | C+ | 一般，存在多个问题影响增长 |
+| 4-4.9 | C | 不佳，多个核心问题需整改 |
+| <4 | D | 很差，冷启动停滞或增长完全停止 |
+
+### 健康度分级建议
+
+- **A/B+**：维持更新节奏，持续小步测试新钩子/新题材
+- **B/C+**：优先解决1-2个最高优先级问题（如赞率、爆款依赖），每批次优化3-5条低分视频
+- **C及以下**：冷启动阶段建议重新梳理题材聚焦，严格执行标签优化+封面统一，高频更新刺激算法重新评估
+
+### 诊断行动清单结构（2026-07-12更新）
+
+diagnose_channel.py 的 action items 输出结构从4字段扩展到7字段：
+```json
+{
+  "priority": 1,
+  "action": "一句话摘要",
+  "based_on": "依据数据（引用problems.evidence或具体指标）",
+  "concrete_steps": "①步骤一 ②步骤二 ③步骤三",
+  "acceptance_criteria": "验收标准（可量化的完成标志）",
+  "expected_impact": "预期效果",
+  "effort": "低/中/高"
+}
+```
+前端面板（Vue ChannelAnalysis.vue + index_v3.html）均已更新展开层渲染。
+**⚠️ 已有诊断数据只有旧4字段（v-if兼容），新字段在下次诊断运行后出现。**
+
+### 执行注意事项
+
+- **推荐使用 `--all` 而非逐个指定频道名**：`diagnose_channel.py` 的 `--all` 参数已从 `our_channels.json` 注册表自动遍历所有频道，自动覆盖新增频道（如 Beer Anime）。修改 cron prompt 时应统一用 `--all`，而非硬编码频道列表。
+- **推荐使用 `--all` 而非逐个指定频道名**：`diagnose_channel.py` 的 `--all` 参数已从 `our_channels.json` 注册表自动遍历所有频道，自动覆盖新增频道（如 Beer Anime）。修改 cron prompt 时应统一用 `--all`，而非硬编码频道列表。
+- 脚本参数：使用 `--channel` 参数（频道名，非 slug），或直接用 `--all`。频道名映射：
+  - 追劇姐妹 → hk/繁中
+  - Apocalyptic Films → en_global/en
+  - DramaCipher → id/印尼
+  - Luna Drama Estudio → es_latam/西语
+  - DramaVerve → br/葡萄牙
+  - Moonlit Drama Studio → en_moonlit/en
+  - Beer Anime → en_beeranime/en
+- **`--slug` 参数不存在**：脚本只支持 `--channel` 和 `--all`。cron prompt 中用 `--slug` 会被 LLM 自行纠错，参数不可控且遗漏新频道。务必用 `--all`。
+- **新频道诊断频率**：增长快的新频道（如Beer Anime两周从6→11条视频）应每周至少跑一次诊断，否则数据过时会导致误判（如"头部3条占99%"在一周后已不成立）。建议cron设置为每周2-3次。
+- 常见API问题：封面分析可能返回401 Unauthorized（token过期），不影响整体诊断，仅缺失单条封面数据；频道级战略诊断可能超时或服务不可用，保留已有诊断即可。
+- **`--slug` 参数不存在**：脚本只支持 `--channel` 和 `--all`。cron prompt 中用 `--slug` 会被 LLM 自行纠错，参数不可控且遗漏新频道。务必用 `--all`。
+- **新频道诊断频率**：增长快的新频道（如Beer Anime两周从6→11条视频）应每周至少跑一次诊断，否则数据过时会导致误判（如"头部3条占99%"在一周后已不成立）。建议cron设置为每周2-3次。
+- 常见API问题：封面分析可能返回401 Unauthorized（token过期），不影响整体诊断，仅缺失单条封面数据；频道级战略诊断可能超时或服务不可用，保留已有诊断即可。
+- 增量执行：仅处理新增视频，跳过已分析内容，节省LLM成本和时间。
+
+---
 
 ## 诚实边界
 
