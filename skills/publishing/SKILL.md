@@ -38,17 +38,35 @@ description: |
 
 → 钩子体系（7类核心+5类新发现）见 references/hooks.md
 
-### 步骤3：包装成标题
-用包装模式把骨架+钩子包装成完整标题。
+### 步骤3：读取语种特定规则
+根据目标市场，读取 `~/.hermes/knowledge/{lang}/distill.json`：
+- `how.title_constraints` → 语种特定的标题结构、均长、emoji率
+- `how.rhetorical_patterns` → 语种特定的句式模板、标点策略
+
+**各语种标题结构速查**：
+| 语种 | 结构 | 句式特征 |
+|------|------|----------|
+| en | 格式词/emoji + 冲突场景 + 反转 + 结果 | 破折号、省略号、but/unaware |
+| es | 两段式：困境 + resulta/pero反转 | 感叹号高频，逗号+分号 |
+| id | 两段式：受辱 + Tak disangka/Ternyata反转 | 感叹号高频，省略号情绪停顿 |
+| jp | 【前缀】+ 转折词「だが」「ところが」+ 结果 | 【】前缀，——长破折号 |
+| tr | 三段式叙事链：身份 + 转折事件 + 反转结果 | 逗号事件链，分号幕间分割 |
+| 繁中 | 长句高密度：低位身份 + 豈料/怎料 + 结果 | 感叹号+省略号规律 |
+| pt | 两段式：受辱/困境 + mas/então反转 | 感叹号+省略号 |
+
+### 步骤4：包装成标题
+用语种特定的句式模板+标点策略，把骨架+钩子包装成完整标题。
 
 → 包装模式见 references/hooks.md
+→ 语种特定规则见 distill.json 的 title_constraints + rhetorical_patterns
 
-### 步骤4：生成3个方案
+### 步骤5：生成3个方案
 每个方案包含：
 - 骨架类型
 - 标题文本（目标语言）
 - 命中钩子列表
 - 评分（hook/conflict/curiosity/total）
+- 语种规则合规检查（长度、句式、标点）
 
 ---
 
