@@ -1,0 +1,785 @@
+{
+  "meta": {
+    "version": "3.1.0",
+    "generated_at": "2026-06-23T16:59:10.494394Z",
+    "source": "mimo+gpt55-merged",
+    "distill_lang": "葡萄牙",
+    "knowledge_lang": "葡萄牙"
+  },
+  "stats": {
+    "avg_title_length": 88,
+    "emoji_rate": 19.7,
+    "top_emojis": [
+      "💌",
+      "😭",
+      "💗",
+      "🎀",
+      "🐼",
+      "💎",
+      "😚",
+      "💥",
+      "😎",
+      "💕"
+    ],
+    "best_hours": [
+      15,
+      14,
+      18,
+      13,
+      17
+    ],
+    "best_weekdays": [
+      "Friday",
+      "Wednesday",
+      "Thursday"
+    ],
+    "key_words": [
+      "总裁/首富/霸总",
+      "甜宠/爱情",
+      "隐藏身份",
+      "逆袭",
+      "复仇",
+      "离婚/前妻",
+      "战神/战王",
+      "重生/穿越",
+      "怀孕/带娃",
+      "其他",
+      "契约婚姻",
+      "豪门/家族",
+      "赘婿/弃婿",
+      "千金/公主",
+      "保姆/佣人"
+    ]
+  },
+  "why": {
+    "title": [
+      {
+        "principle": "身份反转要放在动作之后，而不是一开始就摊牌。",
+        "psychology": "葡萄牙市场高播放标题常先让观众看到弱者处境或荒唐事件，再突然揭露CEO、bilionário、herdeira等身份；这种“我以为她完了，结果她赢了”的认知落差会制造强点击冲动。",
+        "application": "标题前半句写具体困境或动作，如【quebrou o relógio】【foi expulsa grávida】【salva mendigos】；后半句再揭露身份或结果，如【mas eles eram CEOs】【descobre que ela é esposa do CEO】。封面同步展示弱者姿态和富人符号。"
+      },
+      {
+        "principle": "剧情钩子比人物设定更重要，人物必须被放进一个不可逆事件里。",
+        "psychology": "观众不是因为“CEO”本身点击，而是因为CEO被打破手表、被救、吃醋、跪下、认孩子等事件推入失控状态；不可逆事件让观众想知道后续如何收场。",
+        "application": "避免只写【CEO frio se apaixona】这种静态设定，应写成【garota pobre bate no carro do CEO, todos acham que acabou, mas ele pede casamento】。封面要给出事件道具：破表、婴儿车、雨夜、合同、医院、豪宅。"
+      },
+      {
+        "principle": "葡语标题适合“长句微剧情”，不是极短悬念句。",
+        "psychology": "样本标题均长88字符，爆款往往在一个标题里完成起因、转折、结果三步，降低理解成本；观众滑动时不需要猜题材，立刻知道爽点在哪里。",
+        "application": "标题结构建议采用【受害/误会场景】+【Mas/No dia seguinte/Para pagar】+【身份揭露或情感反转】。例如不要只写【A faxineira e o CEO】，而要写【A faxineira caiu nos braços do CEO! Achou que seria demitida, mas ele a protege diante de todos!】。"
+      },
+      {
+        "principle": "情绪词要服务于复仇、心疼、甜宠三种终局宣泄。",
+        "psychology": "emotion类标题均播最高，说明观众点击的不是信息，而是情绪补偿：替女主委屈、等渣男后悔、看弱者被宠、看恶人被打脸。",
+        "application": "标题中优先使用【humilhada】【expulsa】【abandonada】【protege】【se ajoelha】【arrepende-se】【vingança】等能直接触发情绪的葡语词；封面人物表情必须夸张到一眼看出委屈、震惊、吃醋或宠溺。"
+      },
+      {
+        "principle": "数字和极端关系能快速放大戏剧性，但必须与情节绑定。",
+        "psychology": "3 CEOs、gêmeos、5 anos、60岁老人等数字能让故事显得更离奇、更具体，提升记忆点；但只有当数字改变命运时才有效。",
+        "application": "数字不要作为装饰，应成为冲突核心，如【salva 3 mendigos—eram 3 CEOs】【engravidou de gêmeos】【filho de 5 anos protege a mãe】。封面同步出现对应数量的人物或物件，避免标题和画面脱节。"
+      }
+    ],
+    "thumbnail": [
+      {
+        "principle": "封面最好把标题里的“关键转折物”视觉化。",
+        "psychology": "高播放封面不是单纯好看，而是让观众在1秒内看懂标题冲突：破碎手表、婴儿车、雨夜救援、豪宅奶奶、合同丈夫等道具会把抽象剧情变成可点击画面。",
+        "application": "每张封面至少保留一个可识别道具：手表代表债务，婴儿车代表豪门血脉，雨/医院代表救赎，豪宅/珠宝代表身份跃迁，文件/戒指代表契约或复仇。"
+      },
+      {
+        "principle": "对比式构图比拼贴堆人更适合葡语短剧。",
+        "psychology": "有效封面多为contrast构图，能直接呈现权力差、情绪差、身份差；拼贴式封面信息多但主冲突不集中，容易降低点击效率。",
+        "application": "推荐2-4人构图：弱者在一侧，强者/旁观者/反派在另一侧；用手指、壁咚、拉绳、拥抱、下跪等动作形成视觉张力。避免无重点地放6-10个人。"
+      },
+      {
+        "principle": "封面情绪可以和标题互补，但不能无关。",
+        "psychology": "部分爆款封面展示甜蜜结果，标题写悲惨起因，形成“她怎么从被抛弃到被宠爱”的过程悬念；但如果封面完全不呈现标题元素，就会削弱信息传递。",
+        "application": "如果标题写【expulsa grávida na tempestade】，封面可以展示CEO宠溺她，但必须保留孕妇、医院、雨夜或保护姿态中的至少一个线索；不要用与剧情无关的古装或空泛人物照。"
+      },
+      {
+        "principle": "暖金豪门感和冷暖冲突都有效，关键是服务阶级跃迁。",
+        "psychology": "warm与mixed色彩在样本中表现较好，因为它们能同时传递豪门幻想、浪漫安全感和危机张力；冷色单独使用更适合复仇或悲剧题材。",
+        "application": "甜宠/豪门用暖金、米色、棕色、白色；救援/复仇用蓝灰背景加红火、黄色裙子、白西装等高对比色。封面文字可用金色突出【CEO】【Bilionário】【Grávida】【Vingança】。"
+      }
+    ],
+    "tags_and_distribution": [
+      {
+        "principle": "标签的任务是告诉系统题材，不是复述标题。",
+        "psychology": "高播放描述标签集中在doramas、teatro、amor、CEO、FilmeCompleto等题材词，说明系统和观众都需要快速识别这是葡语配音短剧/完整剧场内容。",
+        "application": "描述标签用稳定题材组：#doramas #teatro #amor #CEO #FilmeCompleto #DoramaDublado #Romance。标题内标签少量使用，避免标题可读性被破坏。"
+      },
+      {
+        "principle": "葡语市场要同时覆盖“dorama”和“novela/teatro”的搜索语义。",
+        "psychology": "用户可能用韩剧/中剧/短剧/剧场等不同词搜索同类内容；只押一个词会损失推荐入口。",
+        "application": "描述标签组合建议包含三层：内容形态【FilmeCompleto/DoramaDublado/MiniNovela】+题材【Romance/CEO/Vingança】+语言【Português/PTBR/Dublado】。"
+      },
+      {
+        "principle": "描述模板要先合规，再简介，再引导观看。",
+        "psychology": "高播放描述中出现Aviso Importante、合规声明、Bem-vindo(a)和剧情简介，既降低平台风险，又给观众一个正式剧场感。",
+        "application": "描述第一段放欢迎或合规声明，第二段用2-3句剧情梗概，第三段放标签和频道引导。不要只堆关键词，也不要写与标题无关的长剧情。"
+      }
+    ],
+    "market_insights": {
+      "gender_bias": "女频豪门爱情、CEO、契约婚姻、怀孕带球、被宠逆袭明显占优；男频战神、修仙、武力爽文也出现，但样本中高播放稳定性弱于女频。建议主频道以女频CEO甜虐为基本盘，男频只作为测试栏目或周末补充，不要让频道定位混乱。",
+      "emerging_trends": "新兴趋势包括“穷人测试富人”的慈善反差、“幼年守护者”改变命运、“被迫共处”的禁忌情感，以及用一碗汤、鸡腿、旧衣服等廉价物品触发命运反转。这些题材比传统单纯CEO宠爱更有新鲜感。",
+      "content_quality_signals": "可使用FilmeCompleto、DoramaDublado、MiniNovela、PT DUB、Português、Completo、Histórias Emocionantes等信号词；标题不宜过度堆FULL/HD，描述和封面角标更适合承载质量信号。"
+    }
+  },
+  "what": [
+    {
+      "name": "弱者闯祸变豪门宠爱",
+      "template": "【贫穷女主】不小心【造成高价损失】，所有人都以为她完了，没想到【CEO/亿万富翁】却【保护她并爱上她】。",
+      "why_it_works": "把恐惧惩罚和甜宠保护压缩在同一事件里，先制造焦虑再给补偿。",
+      "sub_genre": "CEO甜宠、灰姑娘逆袭、职场爱情",
+      "examples": [
+        "Quebrou o relógio milionário do CEO. Para pagar, virou sua empregada e o apaixonou!",
+        "💗A garota bate no carro do CEO, todos acham que ela acabou, mas ele pergunta: \"Quer casar comigo?\"!"
+      ]
+    },
+    {
+      "name": "怀孕弃妇被豪门认领",
+      "template": "【女主】被【家人/丈夫/社会】抛弃时已经【怀孕/带娃】，后来【CEO/ bilionário】出现并宣布：【孩子/她】属于我。",
+      "why_it_works": "孕育、抛弃、认亲同时触发心疼、伦理冲突和豪门补偿。",
+      "sub_genre": "带球跑、豪门认亲、虐恋救赎",
+      "examples": [
+        "Engravida de gêmeos numa noite, no dia seguinte bilionário aparece: esses filhos são meus!#dorama",
+        "Expulsa grávida na tempestade, ela foi salva no hospital pelo CEO que achou que ela era golpista."
+      ]
+    },
+    {
+      "name": "隐藏身份打脸全场",
+      "template": "所有人都嘲笑【女主/男主】只是【低微身份】，直到【关键场景】里真相曝光：她/他其实是【最高身份】。",
+      "why_it_works": "集体轻视会放大后续打脸爽感，身份揭露越晚，补偿越强。",
+      "sub_genre": "身份反转、豪门复仇、女强爽剧",
+      "examples": [
+        "A sogra mandou lavar seus pés,mas ela jogou a água! Ninguém sabe que ela é uma herdeira bilionária!",
+        "Servi o meu filho como empregada, mas sou a presidente secreta"
+      ]
+    },
+    {
+      "name": "善意救助换来命运暴富",
+      "template": "【穷人/孩子】用仅有的【廉价物品/善意行为】帮助了【落魄陌生人】，却发现对方竟是【隐藏强者】，从此命运改写。",
+      "why_it_works": "观众喜欢“真心胜过金钱”的道德奖励，善良者被命运补偿会带来强满足感。",
+      "sub_genre": "慈善测试、命运逆转、家庭情感",
+      "examples": [
+        "Rapaz pobre dá coxa de frango a mendigo, ganha poder de deus da guerra e medicina!",
+        "Jogada Ao Mar Pela Família, Garota Pobre Salva 3 Mendigos—Mas Eles Eram 3 CEOs! Seu Destino Mudou!"
+      ]
+    },
+    {
+      "name": "契约关系失控成真爱",
+      "template": "【女主】为了【逃婚/还债/保住工作】和【陌生人/上司】签下契约，约定互不相爱，结果【男主】先失控吃醋。",
+      "why_it_works": "契约提供理性边界，吃醋打破边界，观众会追看“假关系如何变真”。",
+      "sub_genre": "契约婚姻、办公室恋情、先婚后爱",
+      "examples": [
+        "Seu marido por contrato é seu chefe! Ele manda ficar longe, mas enlouquece de ciúmes primeiro!#dora",
+        "Chega de pressão matrimonial! Casei por contrato com o herdeiro rico."
+      ]
+    }
+  ],
+  "how": {
+    "hook_combination": {
+      "核心发现": "葡萄牙短剧标题最强不是单一CEO词，而是identity+reversal作为骨架，再叠加emotion作为点击燃料；relationship和compensation更适合做中后段宣泄，不宜单独承担首钩。",
+      "最强配对": [
+        "identity+reversal",
+        "emotion+identity",
+        "emotion+reversal"
+      ],
+      "低效组合": [
+        "单独relationship无身份反转",
+        "单独compensation无前置伤害",
+        "纯emoji甜宠无具体事件"
+      ],
+      "规则": [
+        "标题前半句负责制造误判或伤害，后半句负责反转身份或给出补偿。",
+        "如果使用CEO/bilionário，必须绑定一个具体动作，否则会沦为普通题材词。",
+        "复仇类标题必须先让观众知道谁受伤、为什么受伤，再写报复结果。",
+        "甜宠类可以用💗开头，但正文仍要包含误会、同床、契约、吃醋、保护中的至少一个冲突。"
+      ],
+      "hook_types": {
+        "emotion": {
+          "definition": "直接触发愤怒、心疼、甜蜜、感动等强烈情绪共鸣，是点击和留存的基础动力。",
+          "examples": [
+            "Quebrou o relógio milionário do CEO. Para pagar, virou sua empregada e o apaixonou!",
+            "A faxineira caiu nos braços do CEO! Achou que seria demitida, mas ele a protege diante de todos!"
+          ]
+        },
+        "identity": {
+          "definition": "利用社会地位、财富或能力的巨大落差进行叙事，核心是卑微到尊贵或隐藏到揭露。",
+          "examples": [
+            "Bilionário finge ser fazendeiro, espera desprezo e acaba pedindo CEO em casamento!",
+            "Casei com um comum: é um CEO! Na mansão, a vovó me deu ouro e me chamou de neta!"
+          ]
+        },
+        "relationship": {
+          "definition": "聚焦亲密关系中的冲突、背叛与纠葛，如夫妻、兄弟、情敌、家族成员间的矛盾。",
+          "examples": [
+            "Ela é esposa do CEO. Ele é o irmão. Começa um amor proibido!",
+            "O cunhado perigoso não consegue tirar os olhos da noiva do irmão!【Rejeitada vira nobre】"
+          ]
+        },
+        "reversal": {
+          "definition": "剧情出现意想不到的转折，颠覆观众已有预期，制造悬念和惊叹。",
+          "examples": [
+            "A faxineira caiu nos braços do CEO! Achou que seria demitida, mas ele a protege diante de todos!",
+            "Jogada Ao Mar Pela Família, Garota Pobre Salva 3 Mendigos—Mas Eles Eram 3 CEOs! Seu Destino Mudou!"
+          ]
+        },
+        "compensation": {
+          "definition": "聚焦后悔、打脸、跪求、被碾压的结局，是情感的最终宣泄和正义实现。",
+          "examples": [
+            "Novo CEO chega e revela: é o ex que a abandonou! Ela foge, mas ele se ajoelha na frente de todos!",
+            "O marido vai para França com a amante, ela recomeça a vida e ele arrepende-se tarde demais!"
+          ]
+        },
+        "time": {
+          "definition": "通过多年后、重生、回到过去等时间跨度制造变化对比和命运感。",
+          "examples": [
+            "Após 10 Anos na Luta, Ele Casa com Bela Misteriosa… Mas Descobre que Ela é Bilionária",
+            "Depois de anos sem se verem, o CEO reconheceu na hora que ela era quem o salvou"
+          ]
+        }
+      },
+      "emergent_hooks": [
+        {
+          "name": "穷人测试富人的慈善反差",
+          "definition": "弱者用有限资源帮助看似落魄的人，而对方实为隐藏强者，善意触发命运奖励。",
+          "examples": [
+            "Rapaz pobre dá coxa de frango a mendigo, ganha poder de deus da guerra e medicina!",
+            "CEO Finge Ser Mendigo P/ Testar Garota Pobre—Ela Gasta Tudo P/Comprar-lhe Terno!"
+          ]
+        },
+        {
+          "name": "幼年守护者带来的命运逆转",
+          "definition": "孩子出于纯真本能救人、护母或揭露真相，成为扭转全局的关键。",
+          "examples": [
+            "Mãe Solo Pobre Leva Jovem Ao Trabalho—Mas Ele Entra No Escritório & Dorme C/ CEO! Amor Surge!"
+          ]
+        },
+        {
+          "name": "被迫共处催生禁忌情感",
+          "definition": "将本不该产生情感的人物放进无法逃离的共处关系，放大禁忌和拉扯。",
+          "examples": [
+            "Ela é esposa do CEO. Ele é o irmão. Começa um amor proibido!",
+            "O cunhado perigoso não consegue tirar os olhos da noiva do irmão!【Rejeitada vira nobre】"
+          ]
+        },
+        {
+          "name": "动物/自然元素作为命运信物",
+          "definition": "普通食物或廉价物品成为测试真心、触发回报或改变命运的关键道具。",
+          "examples": [
+            "Rapaz pobre dá coxa de frango a mendigo, ganha poder de deus da guerra e medicina!"
+          ]
+        }
+      ],
+      "hook_stats": {
+        "reversal_count": 52,
+        "reversal_rate": 66.7,
+        "reversal_avg_views": 43552,
+        "identity_count": 42,
+        "identity_rate": 53.8,
+        "identity_avg_views": 45841,
+        "emotion_count": 38,
+        "emotion_rate": 48.7,
+        "emotion_avg_views": 50229,
+        "compensation_count": 22,
+        "compensation_rate": 28.2,
+        "compensation_avg_views": 18781,
+        "relationship_count": 20,
+        "relationship_rate": 25.6,
+        "relationship_avg_views": 24188,
+        "time_count": 7,
+        "time_rate": 9.0,
+        "time_avg_views": 13828
+      }
+    },
+    "hashtag_strategy": {
+      "title_tags": [
+        "#dorama",
+        "#dora",
+        "#Reviravolta",
+        "#ação"
+      ],
+      "description_tags": [
+        "drama",
+        "Romance",
+        "Amor",
+        "FilmeCompleto",
+        "Cinderela",
+        "doramas",
+        "Kdrama",
+        "CEO",
+        "Ação",
+        "dramachinês",
+        "Vingança",
+        "cdrama",
+        "Português",
+        "DoramaDublado",
+        "MiniNovela"
+      ],
+      "combination_pattern": "高频共现围绕drama+romance、amor+drama、drama+dramachinês、cinderela+filmecompleto展开；标签应同时覆盖题材、内容形态和语言。",
+      "trend_hijacking": "用dorama、kdrama、cdrama、novela curta、FilmeCompleto、Dublado em Português截流泛剧集搜索；CEO、Cinderela、Vingança负责承接短剧题材推荐。",
+      "rules": [
+        "标题内最多放1个标签，优先放在末尾，不要破坏微剧情阅读。",
+        "描述标签分三组：题材词、剧种词、语言词。",
+        "CEO甜宠用#CEO #Romance #Amor #DoramaDublado；复仇用#Vingança #Drama #FilmeCompleto；男频动作用#Ação但不要混入太多甜宠标签。",
+        "大小写可混合覆盖搜索习惯，但同一条描述不要重复堆同义词超过两轮。"
+      ]
+    },
+    "description_template": {
+      "structure": "表现较好的描述多采用合规声明或欢迎语开头，然后给出剧情简介，最后放标签和观看引导。synopsis类占比最高，说明剧情简介仍是主要信息载体。",
+      "template_types": [
+        {
+          "name": "合规声明型",
+          "pattern": "Aviso Importante: Este vídeo é destinado exclusivamente para fins de entretenimento. Conteúdo fictício e dramático. Em seguida, escreva uma sinopse curta com conflito, virada e promessa emocional.",
+          "适用场景": "高冲突、复仇、争议关系、强情绪题材"
+        },
+        {
+          "name": "欢迎剧场型",
+          "pattern": "Bem-vindo(a) ao Teatro de Dramas Curtos 💖 Aqui você encontra dramas chineses curtos dublados/legendados em português. Depois adicione 2-3 frases resumindo o episódio.",
+          "适用场景": "频道品牌建设、甜宠、长期更新栏目"
+        },
+        {
+          "name": "标签入口型",
+          "pattern": "#FilmeCompleto #CEO #Amor #DoramasDubladosEmPortugues 开头，随后用一句话说明主冲突，再用一句话说明反转结果。",
+          "适用场景": "需要快速进入推荐标签池的新视频"
+        }
+      ],
+      "rules": [
+        "简介不要复刻完整标题，要补充人物关系和情绪承诺。",
+        "第一屏必须出现CEO、Romance、Dublado/Português、FilmeCompleto等识别词之一。",
+        "争议题材加入虚构、娱乐、合规说明，降低误判风险。",
+        "标签放在描述末尾或开头均可，但不要让标签淹没剧情简介。"
+      ]
+    },
+    "publish_time": {
+      "best_hours": [
+        15,
+        14,
+        18,
+        13,
+        17
+      ],
+      "best_weekdays": [
+        "Friday",
+        "Wednesday",
+        "Thursday"
+      ],
+      "rules": [
+        "优先在UTC 13:00-18:00区间发布，覆盖葡语用户午后到晚间浏览窗口。",
+        "重点测试Friday、Wednesday、Thursday，不要把强钩子集中在低效日期。",
+        "同一题材至少连续测试3-5条再判断，不要因单条波动调整发布时间。",
+        "首发后2小时关注点击率和前30秒留存，若标题点击弱，优先替换标题前半句的事件钩子。"
+      ]
+    },
+    "growth_strategy": [
+      "初期策略：建立基础内容库，使用高播放标题模板和封面模板，快速积累播放量和订阅数",
+      "中期策略：建立内容连续性，如系列剧、连续剧，增加观众粘性和期待感",
+      "长期策略：建立频道品牌，如固定的开场白、结尾悬念、视觉风格等，增加频道辨识度",
+      "互动策略：与其他频道互动、评论区互动、观众投票等，增加观众参与感",
+      "数据分析策略：持续分析数据，优化标题、封面、标签，关注新兴趋势",
+      "多平台策略：考虑将内容分发到其他平台，如TikTok、Instagram Reels，扩大受众范围"
+    ],
+    "thumbnail_guidelines": {
+      "composition": "优先使用contrast构图：两到四个角色形成权力对峙、救援关系、吃瓜围观或亲密拉扯。中心构图适合甜宠和豪门认亲，但必须有明确道具或表情焦点。",
+      "figures": "最佳人物数量建议2-4人：男女主负责关系冲突，反派/保镖/奶奶/孩子负责强化身份和社会压力。避免大群像无主次。",
+      "colors": "豪门甜宠用暖金、米白、棕色和柔光；危机救援用蓝灰冷背景加黄色、红色火焰或白衣强对比；复仇用冷蓝、黑白和局部红色。",
+      "emotion": "主情绪以tension为核心，romance作为结果展示，mystery只适合身份隐藏题材。表情要明显：震惊、委屈、质问、宠溺、吃醋、哭泣。",
+      "visual_symbols": "破碎手表、婴儿车、双胞胎、医院床、雨夜、豪车、豪宅、戒指、合同、文件、保镖、女仆装、珠宝、下跪动作、壁咚动作。",
+      "text": "封面文字控制在2-5个葡语强词，如CEO、Grávida、Contrato、Vingança、Gêmeos、Bilionário；文字颜色用金色、白色、红色，避免整句标题搬上封面。",
+      "title_synergy": {
+        "patterns": [
+          {
+            "name": "标题给反差，封面给证据",
+            "description": "标题常用'表面身份→真实身份'的反转；封面必须放出能证明反转的视觉符号。",
+            "example": "标题'乞丐被家人拒绝，结果是战神'，封面展示落魄主角+金龙。"
+          },
+          {
+            "name": "封面定格冲突高潮，标题补全前因后果",
+            "description": "封面抓最紧张的一帧，标题说明为什么发生、接下来会怎样。",
+            "example": "封面孕妇决绝离开，标题'我怀孕后离开，CEO心碎追悔'。"
+          },
+          {
+            "name": "情绪反转视觉化",
+            "description": "封面直接呈现转折后的强烈情绪。",
+            "example": "标题'CEO一直冷漠，知道她受伤后立刻慌了'，封面表现女主受伤+男主惊慌。"
+          },
+          {
+            "name": "男女主关系用肢体距离表达",
+            "description": "封面通过靠近、搂抱、壁咚等姿势表达关系阶段。",
+            "example": "标题'乡下女孩救下禁欲总裁后逃走'，封面对峙暧昧氛围。"
+          },
+          {
+            "name": "阶层符号强化爽感",
+            "description": "低位身份与高位符号同框对比。",
+            "example": "标题'被嘲笑背破包上学，结果是继承人'，封面围观嘲笑+富贵暗示。"
+          },
+          {
+            "name": "奇观元素服务男频战力",
+            "description": "男频封面用金龙、光球、火焰等奇观元素可视化'强'。",
+            "example": "标题'被敌人包围，瞬间消灭所有人'，封面能量光效+敌人倒下。"
+          },
+          {
+            "name": "标题负责信息密度，封面负责情绪密度",
+            "description": "标题可长，封面只突出1个主冲突+2-3个关键符号。",
+            "example": "标题'穷小子入赘残疾美女总裁，竟是神医圣手'，封面只突出神医施针。"
+          },
+          {
+            "name": "互补优于重复",
+            "description": "封面展示标题中最有画面感的一段，二者拼起来才完整。",
+            "example": "标题'白天秘书、夜晚CEO无法抗拒'，封面只展示夜晚暧昧场景。"
+          }
+        ],
+        "anti_patterns": [
+          {
+            "name": "封面与标题题材错位",
+            "description": "标题讲CEO/身份反转，封面却是古典/无关场景。"
+          },
+          {
+            "name": "只美不钩",
+            "description": "封面只有漂亮人物，缺少冲突、动作、表情和身份符号。"
+          },
+          {
+            "name": "标题有爆点，封面无爆点",
+            "description": "标题承诺强情节，封面没表现对应视觉。"
+          },
+          {
+            "name": "封面信息过散",
+            "description": "同时塞入太多元素，核心钩子不突出。"
+          },
+          {
+            "name": "情绪强度不匹配",
+            "description": "标题极端冲突，封面过于轻松。"
+          },
+          {
+            "name": "关键身份缺少视觉锚点",
+            "description": "标题中的CEO/继承人/兵王等身份没有可见符号。"
+          }
+        ],
+        "rule": "高点击封面与标题必须围绕同一个'核心钩子'分工协作：标题说清身份反差、情节反转或情绪爆点，封面把最有张力的一瞬间视觉化，并用表情、动作、阶层符号或奇观元素放大悬念。"
+      }
+    },
+    "emoji_strategy": {
+      "best_position": "样本中emoji主要出现在标题开头，尤其是💗用于标记甜宠爱情向；但有emoji均播低于无emoji，说明emoji不能替代剧情钩子。",
+      "rules": [
+        "只在甜宠、浪漫、轻喜题材使用💗、💌、🎀作为开头分类标记。",
+        "复仇、悲剧、怀孕弃妇、身份打脸类优先不用emoji，让标题显得更像正剧。",
+        "每个标题最多1个核心emoji，避免多个emoji稀释葡语关键词。",
+        "不要为了提高点击而硬加emoji；如果标题本身已有强事件和反转，可以不加。"
+      ]
+    },
+    "title_skeletons": [
+      {
+        "name": "身份反转型",
+        "narrative_pattern": "故事核：一个处于社会底层/被抛弃的人物，通过偶然或命运的安排，遇到隐藏身份的强者（CEO/富人），经历一系列冲突和误解后，身份揭露，实现阶层跨越或情感逆袭。张力结构：卑微→被羞辱→身份揭露→打脸/逆袭。",
+        "psychological_hook": "观众通过代入被抛弃者的视角，体验到阶层跨越的幻想和'打脸'的满足感。数据表明identity钩子均播45,841，与reversal共现28次最多。",
+        "sub_genre": "甜宠、逆袭、复仇、豪门",
+        "avg_views": 45841,
+        "count": 42,
+        "examples": [
+          "Casei com um comum: é um CEO! Na mansão, a vovó me deu ouro e me chamou de neta!",
+          "Todos riram dela por casar com um 'idiota'. Quem diria: a família toda a trata como uma princesa!",
+          "Bilionário finge ser fazendeiro, espera desprezo e acaba pedindo CEO em casamento!"
+        ],
+        "rules": [
+          "可变：具体的身份（CEO/总裁/继承人）、场景（豪门/职场/乡村）、冲突类型（被嘲笑/被抛弃/被误解）",
+          "不可变：身份落差必须存在，反转必须发生，结局必须是被抛弃者胜利",
+          "反例：直接说'她是CEO的妻子'没有反转感；身份揭露后没有'打脸'的满足感"
+        ]
+      },
+      {
+        "name": "逆境救赎型",
+        "narrative_pattern": "故事核：一个处于极度困境/危险的人物（被抛弃的孕妇、被困的CEO、破产的家庭），在最绝望的时刻被一个意外的救世主所拯救，而这个救世主往往隐藏着强大身份。张力结构：困境→绝望→被拯救→身份揭露。",
+        "psychological_hook": "观众在最危险/最绝望时看到被拯救，产生强烈的'希望'和'命运逆转'的满足感。数据表明tension情绪封面均播51,810。",
+        "sub_genre": "逆袭、复仇、甜宠、亲情",
+        "avg_views": 51810,
+        "count": 15,
+        "examples": [
+          "Expulsa grávida na tempestade, ela foi salva no hospital pelo CEO que achou que ela era golpista.",
+          "Após Acidente, CEO Fica Preso No Topo Do Outdoor—Ninguém Ousa! Só Garota Pobre Sobe & O Salva!",
+          "Jogada Ao Mar Pela Família, Garota Pobre Salva 3 Mendigos—Mas Eles Eram 3 CEOs! Seu Destino Mudou!"
+        ],
+        "rules": [
+          "可变：具体的困境类型（被抛弃/破产/被困）、救世主身份（CEO/富人/神医）、场景（医院/高处/海上）",
+          "不可变：困境必须极端、救世主必须出人意料、身份揭露必须带来命运逆转",
+          "反例：困境不够绝望，救世主身份太明显，没有身份揭露的惊喜感"
+        ]
+      },
+      {
+        "name": "契约/误会型",
+        "narrative_pattern": "故事核：两个本不该有交集的人，因为一个契约、误会或被迫的安排（假结婚、债务、意外怀孕）而绑定在一起，在相处过程中产生情感，最终契约到期或误会解开时，发现彼此已深爱。张力结构：被迫绑定→抗拒→渐生情愫→契约到期/误会解开→选择在一起。",
+        "psychological_hook": "观众在'嗑糖'的同时期待误会何时解开，满足对'追妻火葬场'和'虐恋'的期待。数据表明relationship钩子均播24,188。",
+        "sub_genre": "甜宠、契约、虐恋、豪门",
+        "avg_views": 24188,
+        "count": 20,
+        "examples": [
+          "Seu marido por contrato é seu chefe! Ele manda ficar longe, mas enlouquece de ciúmes primeiro!",
+          "CEO Contrata Caipira P/ Casamento Falso—Mas Ela Surge Deslumbrante De Vestido & Ele Se Apaixona!",
+          "Engravida de gêmeos numa noite, no dia seguinte bilionário aparece: esses filhos são meus!"
+        ],
+        "rules": [
+          "可变：具体的契约类型（假结婚/债务/意外怀孕）、人物身份（CEO与平民/富人与穷人）、冲突点（抗拒/误解/第三方）",
+          "不可变：契约/误会必须存在，情感必须在被迫中萌生，结局必须是选择在一起",
+          "反例：契约太弱或太明显，情感发展太顺利，没有'虐'的过程"
+        ]
+      },
+      {
+        "name": "复仇/补偿型",
+        "narrative_pattern": "故事核：一个被伤害/抛弃的人物，在经历痛苦后获得力量或遇到贵人，最终让伤害她的人付出代价，体验'后悔、打脸、跪求'的满足感。张力结构：被伤害→痛苦→获得力量→复仇→打脸/跪求。",
+        "psychological_hook": "观众渴望看到不公正的'报应'，满足对'正义'的期待。数据表明compensation钩子均播18,781。",
+        "sub_genre": "复仇、逆袭、虐恋",
+        "avg_views": 18781,
+        "count": 22,
+        "examples": [
+          "A filha dela morreu por causa dele. Agora ele vai sentir na pele o que é perder tudo.",
+          "Ela Destruiu Tudo por Outro. Ele Foi Embora. Agora Ela Implora de Joelhos—Tarde Demais!",
+          "Novo CEO chega e revela: é o ex que a abandonou! Ela foge, mas ele se ajoelha na frente de todos!"
+        ],
+        "rules": [
+          "可变：具体的伤害类型（被抛弃/被背叛/被杀害亲人）、复仇方式（打脸/跪求/身败名裂）、复仇者身份（重生/遇到贵人/自己变强）",
+          "不可变：伤害必须存在，复仇必须发生，结局必须是伤害者付出代价",
+          "反例：伤害不够深，复仇太轻松，没有'后悔、打脸、跪求'的满足感"
+        ]
+      },
+      {
+        "name": "禁忌关系型",
+        "narrative_pattern": "故事核：两个本不该产生情感的人物（如小叔与嫂子、兄妹、主仆），被置于一个无法逃离的'共处'场景（如意外同处、被迫合作），由此发展出禁忌之恋的张力。张力结构：身份禁忌→被迫共处→情感萌生→挣扎→最终选择。",
+        "psychological_hook": "禁忌关系激发观众的好奇心和窥探欲，满足对'不被允许'的爱的幻想。数据显示此类内容正在成为新兴趋势。",
+        "sub_genre": "禁忌、虐恋、甜宠",
+        "avg_views": 30000,
+        "count": 5,
+        "examples": [
+          "O cunhado perigoso não consegue tirar os olhos da noiva do irmão!【Rejeitada vira nobre】",
+          "Ela é esposa do CEO. Ele é o irmão. Começa um amor proibido!",
+          "Bela assassina humilhada por playboy, mas ele é o Grande Dragão Dourado!"
+        ],
+        "rules": [
+          "可变：具体的禁忌关系类型（小叔与嫂子/兄妹/主仆）、共处场景（意外同处/被迫合作）、冲突点（身份挣扎/道德困境）",
+          "不可变：身份禁忌必须存在，共处必须被迫，情感必须在挣扎中萌生",
+          "反例：禁忌关系太弱或太明显，共处太轻松，没有道德挣扎"
+        ]
+      },
+      {
+        "name": "穷人测试富人反差型",
+        "narrative_pattern": "故事核：一个处于弱势的人用其有限的资源进行善意的'施予'或'测试'，而接受者实则是隐藏身份的强者（CEO等），这种身份错位的慈善行为产生强烈反差和命运感。张力结构：穷人善意施予→接受者实为隐藏富人→身份揭露→命运逆转。",
+        "psychological_hook": "身份错位的慈善行为产生强烈反差，满足观众对'真心换真心'和'命运逆转'的期待。数据显示此类新兴钩子正在出现。",
+        "sub_genre": "逆袭、甜宠、慈善",
+        "avg_views": 40000,
+        "count": 3,
+        "examples": [
+          "Rapaz pobre dá coxa de frango a mendigo, ganha poder de deus da guerra e medicina!",
+          "CEO Finge Ser Mendigo P/ Testar Garota Pobre—Ela Gasta Tudo P/Comprar-lhe Terno!",
+          "Uma simples sopa de rua conquistou o CEO mais exigente... e também o seu coração"
+        ],
+        "rules": [
+          "可变：具体的施予方式（食物/金钱/帮助）、隐藏身份（CEO/富人/神医）、命运逆转方式（获得力量/成为妻子/获得财富）",
+          "不可变：身份错位必须存在，善意施予必须真实，身份揭露必须带来命运逆转",
+          "反例：施予太刻意，身份揭露太早，没有命运逆转的惊喜感"
+        ]
+      },
+      {
+        "name": "幼年守护者命运反转型",
+        "narrative_pattern": "故事核：一个孩子（通常5岁左右）出于纯真本能做出惊人举动（救人、揭露身份），成为扭转全局的关键，将亲情与奇迹结合，情感冲击力极强。张力结构：母亲/家庭困境→孩子本能行动→拯救/揭露身份→命运逆转。",
+        "psychological_hook": "幼年守护者的纯真本能与成人世界的复杂形成对比，产生强烈的情感冲击。数据显示此类新兴钩子正在出现。",
+        "sub_genre": "亲情、逆袭、甜宠",
+        "avg_views": 35000,
+        "count": 2,
+        "examples": [
+          "Bebê de 5 anos para caminhão com um golpe e salva CEO, revelada anjo da sorte, e seu destino muda para sempre!",
+          "Mãe solo pobre leva jovem ao trabalho—Mas ele entra no escritório & dorme c/ CEO! Amor Surge!"
+        ],
+        "rules": [
+          "可变：孩子的具体年龄（3-7岁）、行为类型（救人/揭露身份/说出真相）、拯救对象（母亲/CEO/家庭）",
+          "不可变：孩子必须出于纯真本能，行为必须惊人，必须带来命运逆转",
+          "反例：孩子的行为太成熟或太刻意，没有纯真感，拯救太轻松"
+        ]
+      }
+    ],
+    "cover_title_synergy": {
+      "rule": "高点击封面与标题必须围绕同一个'核心钩子'分工协作：标题说清身份反差、情节反转或情绪爆点，封面把最有张力的一瞬间视觉化，并用表情、动作、阶层符号或奇观元素放大悬念。",
+      "patterns": [
+        {
+          "name": "标题给反差，封面给证据",
+          "description": "标题常用'表面身份→真实身份'的反转；封面必须放出能证明反转的视觉符号。",
+          "example": "标题'乞丐被家人拒绝，结果是战神'，封面展示落魄主角+金龙。"
+        },
+        {
+          "name": "封面定格冲突高潮，标题补全前因后果",
+          "description": "封面抓最紧张的一帧，标题说明为什么发生、接下来会怎样。",
+          "example": "封面孕妇决绝离开，标题'我怀孕后离开，CEO心碎追悔'。"
+        },
+        {
+          "name": "情绪反转视觉化",
+          "description": "封面直接呈现转折后的强烈情绪。",
+          "example": "标题'CEO一直冷漠，知道她受伤后立刻慌了'，封面表现女主受伤+男主惊慌。"
+        },
+        {
+          "name": "男女主关系用肢体距离表达",
+          "description": "封面通过靠近、搂抱、壁咚等姿势表达关系阶段。",
+          "example": "标题'乡下女孩救下禁欲总裁后逃走'，封面对峙暧昧氛围。"
+        },
+        {
+          "name": "阶层符号强化爽感",
+          "description": "低位身份与高位符号同框对比。",
+          "example": "标题'被嘲笑背破包上学，结果是继承人'，封面围观嘲笑+富贵暗示。"
+        },
+        {
+          "name": "奇观元素服务男频战力",
+          "description": "男频封面用金龙、光球、火焰等奇观元素可视化'强'。",
+          "example": "标题'被敌人包围，瞬间消灭所有人'，封面能量光效+敌人倒下。"
+        },
+        {
+          "name": "标题负责信息密度，封面负责情绪密度",
+          "description": "标题可长，封面只突出1个主冲突+2-3个关键符号。",
+          "example": "标题'穷小子入赘残疾美女总裁，竟是神医圣手'，封面只突出神医施针。"
+        },
+        {
+          "name": "互补优于重复",
+          "description": "封面展示标题中最有画面感的一段，二者拼起来才完整。",
+          "example": "标题'白天秘书、夜晚CEO无法抗拒'，封面只展示夜晚暧昧场景。"
+        }
+      ],
+      "anti_patterns": [
+        {
+          "name": "封面与标题题材错位",
+          "description": "标题讲CEO/身份反转，封面却是古典/无关场景。"
+        },
+        {
+          "name": "只美不钩",
+          "description": "封面只有漂亮人物，缺少冲突、动作、表情和身份符号。"
+        },
+        {
+          "name": "标题有爆点，封面无爆点",
+          "description": "标题承诺强情节，封面没表现对应视觉。"
+        },
+        {
+          "name": "封面信息过散",
+          "description": "同时塞入太多元素，核心钩子不突出。"
+        },
+        {
+          "name": "情绪强度不匹配",
+          "description": "标题极端冲突，封面过于轻松。"
+        },
+        {
+          "name": "关键身份缺少视觉锚点",
+          "description": "标题中的CEO/继承人/兵王等身份没有可见符号。"
+        }
+      ],
+      "female_freq": "核心是'关系张力+情绪反转+身份差'。封面优先呈现亲密/拉扯/对峙/挽留/保护瞬间。标题负责交代'为什么他突然爱她'，封面负责让观众看到'他已经失控了'。",
+      "male_freq": "核心是'低位受辱+隐藏强者+瞬间打脸'。封面直接给出战力/权力/逆袭证明。标题负责说清受辱和真实身份，封面负责让观众相信他马上要赢。",
+      "data_driven": "GPT蒸馏，跨7语言封面+标题数据，通用规则"
+    },
+    "title_constraints": {
+      "avg_length": 88,
+      "emoji_rate": 56.4,
+      "top_emojis": [
+        "😭",
+        "💌",
+        "🎀",
+        "💗",
+        "🐼",
+        "💎",
+        "💥",
+        "👄",
+        "😡",
+        "😮"
+      ],
+      "title_structure": "主流结构是长句微剧情：前半句写具体场景、伤害或误会，中段用Mas/Para pagar/No dia seguinte/Até que完成转折，后半句揭露CEO、bilionário、gêmeos、esposa secreta等身份或结果。破折号和感叹号常用于把起因与反转切开。",
+      "key_words": [
+        "CEO",
+        "bilionário",
+        "garota pobre",
+        "mãe solo",
+        "grávida",
+        "gêmeos",
+        "casamento",
+        "contrato",
+        "empregada",
+        "vingança",
+        "amante",
+        "humilhada",
+        "salva",
+        "apaixona",
+        "ciúmes"
+      ]
+    },
+    "rhetorical_patterns": {
+      "sentence_structures": [
+        {
+          "name": "Mas转折揭露句",
+          "pattern": "{低位角色/危机场景} — Mas {惊人身份/反转结果}!",
+          "example": "Jogada Ao Mar Pela Família, Garota Pobre Salva 3 Mendigos—Mas Eles Eram 3 CEOs! Seu Destino Mudou!",
+          "avg_views": 43552,
+          "count": 52,
+          "when_to_use": "适合身份隐藏、救援反转、弱者逆袭，是最通用的葡语短剧爆款结构。"
+        },
+        {
+          "name": "所有人误判句",
+          "pattern": "Todos {acham/riam/temem} {错误判断}, mas {强者保护/真相曝光/关系反转}.",
+          "example": "💗A garota bate no carro do CEO, todos acham que ela acabou, mas ele pergunta: \"Quer casar comigo?\"!",
+          "avg_views": 50229,
+          "count": 38,
+          "when_to_use": "适合打脸、宠爱、女主被误会的剧情；前半句放大众误判，后半句放主角特权。"
+        },
+        {
+          "name": "为偿还代价被迫绑定句",
+          "pattern": "{女主造成损失/陷入债务}. Para pagar, {被迫身份变化} e {男主情感失控}.",
+          "example": "Quebrou o relógio milionário do CEO. Para pagar, virou sua empregada e o apaixonou!",
+          "avg_views": 50229,
+          "count": 38,
+          "when_to_use": "适合债务、女仆、契约、同居、上司下属等强绑定题材。"
+        },
+        {
+          "name": "次日认领句",
+          "pattern": "{一夜事件/误会发生}, no dia seguinte {bilionário/CEO} aparece: {孩子/身份/婚姻宣言}.",
+          "example": "Engravida de gêmeos numa noite, no dia seguinte bilionário aparece: esses filhos são meus!#dorama",
+          "avg_views": 45841,
+          "count": 42,
+          "when_to_use": "适合怀孕、双胞胎、带球跑、豪门血脉认领。"
+        },
+        {
+          "name": "后悔太晚句",
+          "pattern": "{渣男/家人} {背叛或抛弃她}, ela {重启人生/获得靠山}, e ele {arrepende-se tarde demais}.",
+          "example": "O marido vai para França com a amante, ela recomeça a vida e ele arrepende-se tarde demais!",
+          "avg_views": 18781,
+          "count": 22,
+          "when_to_use": "适合离婚复仇、背叛、虐渣，但必须强化前置伤害和后置补偿。"
+        }
+      ],
+      "punctuation_strategy": {
+        "破折号": "用于切开起因和反转，尤其适合前半句写危机、后半句写身份揭露。",
+        "感叹号": "用于强化结果宣告，如Amor Surge、Seu Destino Mudou、Quer casar comigo，适合甜宠和打脸结尾。",
+        "冒号": "用于引出豪门宣言或真相，如esses filhos são meus，适合认亲和身份摊牌。",
+        "省略号": "用于制造未完待续感，但应少用；若前面没有强事件，省略号会显得空泛。",
+        "引号": "适合放角色台词，尤其是求婚、认子、命令类台词，能增强现场感。"
+      },
+      "visual_elements": {
+        "道具即剧情": "手表、合同、婴儿车、文件、戒指等道具要能对应标题里的关键转折。",
+        "表情即关系": "女主委屈/震惊，男主强势/宠溺，旁观者张嘴吃惊，是葡语短剧封面的高效表达。",
+        "阶级符号要直观": "豪宅、保镖、黑西装、金色灯光、珠宝比抽象的“有钱”更有点击转化。",
+        "救援动作强于静态合照": "拉绳、抱起、壁咚、下跪、指责等动作能让封面自动讲故事。"
+      },
+      "progression_techniques": [
+        {
+          "name": "三段式微剧情",
+          "pattern": "困境起因 → 转折连接词 → 身份/情感结果",
+          "example": "Quebrou o relógio milionário do CEO. Para pagar, virou sua empregada e o apaixonou!"
+        },
+        {
+          "name": "先误会后保护",
+          "pattern": "以为会被惩罚 → 强者公开保护 → 爱情或身份升级",
+          "example": "A faxineira caiu nos braços do CEO! Achou que seria demitida, mas ele a protege diante de todos!"
+        },
+        {
+          "name": "先悲惨后豪门补偿",
+          "pattern": "被抛弃/怀孕/雨夜 → 被CEO救下 → 血脉或爱情确认",
+          "example": "Expulsa grávida na tempestade, ela foi salva no hospital pelo CEO que achou que ela era golpista."
+        },
+        {
+          "name": "善意小物放大命运",
+          "pattern": "廉价善意 → 帮助陌生人 → 对方真实身份改变命运",
+          "example": "Rapaz pobre dá coxa de frango a mendigo, ganha poder de deus da guerra e medicina!"
+        }
+      ]
+    }
+  }
+}

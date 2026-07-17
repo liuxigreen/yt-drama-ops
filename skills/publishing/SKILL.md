@@ -39,7 +39,7 @@ description: |
 → 钩子体系（7类核心+5类新发现）见 references/hooks.md
 
 ### 步骤3：读取语种特定规则
-根据目标市场，读取 `~/.hermes/knowledge/{lang}/distill.json`：
+根据目标市场，读取 `distill/{lang}.json` (仓库内) 或 `~/.hermes/knowledge/{lang}/distill.json` (本地覆盖)：
 - `how.title_constraints` → 语种特定的标题结构、均长、emoji率
 - `how.rhetorical_patterns` → 语种特定的句式模板、标点策略
 
