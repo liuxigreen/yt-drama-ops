@@ -131,3 +131,84 @@
 | pt | mas, however, até que, na verdade |
 | tr | Ancak, ama, gerçeği öğrenince, aslında |
 | zh-tw | 岂料, 殊不知, 原来, 怎料, 不料 |
+
+## 语种特定规则（从distill.json蒸馏）
+
+### English (en)
+**标题约束**：
+- top_emojis: 🔥, 💕, 👑, 💖, 💔, 💥, 🆕, 💗, 🌟, 💍
+- title_structure: 格式词/情绪emoji + 具体冲突场景 + 身份或关系反转 + 结果承诺/后悔
+- key_words: CEO, Billionaire, Reborn, Marriage, Cheater, Husband, Wife, Heiress, Mafia, Secret, Full, ENG DUB, ENG SUB
+
+**句式模板**：
+- Unaware反转句: `{主角/反派做了某事}, unaware {隐藏事实}. {结果/离开/后悔}.`
+- But Actually身份句: `{看似低位关系或身份}... But {他/她} is actually {高位身份}!`
+- Now Regrets补偿句: `{反派/伴侣} {伤害主角}—Now {反派/伴侣} Regrets It!`
+- Reborn改命句: `Reborn {时间/节点}: {主角} {改变旧选择}, {拯救/复仇/致富}.`
+- From-To情绪转化句: `From {初始冷淡/痛苦状态} To {最终热恋/逆袭状态}.`
+
+### Spanish (es)
+**标题约束**：
+- top_emojis: 💔, 🔥, 💖, 💘, 💕, 🧡, 💥, 🗂, 💋, 😫
+- title_structure: 长标题两段式：前半句给低位困境，后半句用resulta/pero连接反转
+- key_words: CEO, renacer, traicionada, humillada, matrimonio, esposo, millonario, pobre, heredero, sistema
+
+**句式模板**：
+- 受辱结果式: `{主角} {低位行为/外表} y lo/la {羞辱动作}, resulta es {真实高位身份}`
+- 长期压迫复仇式: `{时间长度} de {关系}, {背叛动作}; {主角} {夺回资源} y {惩罚结果}`
+- Tras转折式: `Tras {创伤/重生/分手}, {主角} {新选择/新关系/新命运}`
+
+### Indonesian (id)
+**标题约束**：
+- top_emojis: 🔥, 💖, 💕, 🤯, 😈, 💔, 😳, 💍, 😍, 🤰
+- title_structure: 两段式：前半段受辱/误会，后半段用Tak disangka/Ternyata揭示真相
+- key_words: CEO, Gadis, Dewa Perang, Miliarder, Suami, Istri, Tak disangka, Ternyata, Dihina
+
+**句式模板**：
+- Tak disangka反转句: `{低位/负面处境}, tak disangka {真实身份/高价值结果}`
+- Ternyata身份揭示句: `{角色被轻视/遇险}, ternyata {他/她是隐藏强者}`
+- Gila!震惊开头句: `Gila! {异常事件/能力激活}! {能力带来的结果}`
+
+### Japanese (jp)
+**标题约束**：
+- top_emojis: 🔥, 💔, 😱, 🔸, 👑, 😭, 💓, 🐺, 🐰, 💥
+- title_structure: 【前缀】+ 受辱/背叛 + 转折词「だが」「ところが」+ 身份揭露/复仇
+- key_words: 日本語吹き替え, 社長, CEO, 結婚, 妻, 正体, 離婚, 初恋, 溺愛, 復讐
+
+**句式模板**：
+- 次の瞬間反转句: `{低位角色}が{危機}を防いだ——次の瞬間、{意外な報酬}！`
+- だが反转句: `{不公な状況}。だが{真相}が明かされ、{反派的结果}！`
+- 実は人生2周目句: `{反派}は{主角}を奪ったつもりだったが、実は{主角}も{重生}！`
+
+### Turkish (tr)
+**标题约束**：
+- top_emojis: 🔥, 💞
+- title_structure: 三段式叙事链：身份/处境 → 转折事件 → 反转结果，用逗号/分号连接
+- key_words: CEO, Mafya, Kurye, Taksi Şoförü, Milyarder, Varis, Evlendi, Şoke, Şımarttı
+
+**句式模板**：
+- 目睹-以为-反转句式: `{主角}{危险行为} gördü, {极端预期} sandı ama {相反结果}！`
+- 身份揭露震惊句式: `{卑微身份}，{强大角色} tarafından {行为}；Herkes Şoke Oldu！`
+- 抛弃-觉醒-碾压句式: `{被抛弃}，{觉醒/获得能力}，{碾压结果}！`
+
+### Traditional Chinese (繁中)
+**标题约束**：
+- top_emojis: 🔥, 💥, 💖, 💢, 🍊, 💞, 🏆, 👑, 🤫, 😐
+- title_structure: 长句高密度：低位身份 + 豈料/怎料 + 身份曝光/宠爱/打脸结果
+- key_words: 逆襲, 短劇, 爽劇, 甜寵, 都市, 大女主, 復仇, 絕嗣總裁, 首富, 神醫
+
+**句式模板**：
+- 豈料/殊不知反轉句: `{卑微身份}+{遭遇事件}，豈料他竟是{尊貴真實身份}`
+- 怎料一次就中句: `{女主身份}+{與總裁的意外接觸}，怎料一次就中`
+- 不哭不鬧亮出身份句: `{被背叛的慘狀}，她不哭不鬧亮出身份`
+
+### Portuguese (pt)
+**标题约束**：
+- top_emojis: 😭, 💌, 🎀, 💗, 🐼, 💎, 💥, 👄, 😡, 😮
+- title_structure: 长句微剧情：前半句写具体场景，中段用Mas转折，后半句揭露身份/结果
+- key_words: CEO, bilionário, garota pobre, mãe solo, grávida, gêmeos, casamento, vingança
+
+**句式模板**：
+- Mas转折揭露句: `{低位角色/危机场景} — Mas {惊人身份/反转结果}!`
+- 所有人误判句: `Todos {acham} {错误判断}, mas {强者保护/真相曝光}.`
+- 后悔太晚句: `{渣男} {背叛}, ela {重启人生}, e ele {arrepende-se tarde demais}.`
