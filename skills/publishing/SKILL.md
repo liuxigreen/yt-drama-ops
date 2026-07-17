@@ -132,6 +132,13 @@ description: |
     {
       "title": "标题文本",
       "language": "语言",
+      "skeleton": "骨架类型",
+      "hooks": ["钩子1", "钩子2"],
+      "score": {"hook": 80, "conflict": 90, "curiosity": 70, "total": 80}
+    }
+    {
+      "title": "标题文本",
+      "language": "语言",
       "hooks": ["钩子1", "钩子2"],
       "score": {"hook": 80, "conflict": 90, "curiosity": 70, "total": 80}
     }
