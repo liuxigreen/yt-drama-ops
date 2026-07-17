@@ -88,7 +88,7 @@ description: |
 
 → 注入参考prompt（风格校准）：按hook类型从 `references/cover-reference-prompts.md` 中取同桶2-3条反推prompt注入
 → 人物必须有3个细节：外貌特征 + 服装 + 动作/表情
-→ 结尾固定：`CONSTRAINTS: NO text, NO Chinese characters, NO gibberish in image`
+→ 结尾固定：`CONSTRAINTS: NO gibberish text, NO Chinese characters, clean readable text only`
 
 ### 步骤3：校验
 用 `references/covers.md` 的协同模式和四维评分对方案做微调校验。
