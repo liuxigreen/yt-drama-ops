@@ -73,7 +73,7 @@ description: |
 ## 封面指令生成
 
 ### 步骤1：选模板卡
-按hook类型从 `references/short-drama-youtube-3.2.md` 的7张模板卡中选卡：
+按hook类型从 `references/cover-template-cards.md` 的7张模板卡中选卡：
 → 选卡后，使用该卡的**标准生图Prompt**：
   - 固定骨架不可改（构图/景别/安全区来自蒸馏统计）
   - 软约束可按题材偏离（必须声明理由）
