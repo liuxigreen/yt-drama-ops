@@ -32,7 +32,7 @@ description: |
 对用户提供的标题，逐个检查7种钩子的命中情况：
 - 情绪钩子 / 身份钩子 / 反转钩子 / 时间钩子 / 冲突钩子 / 关系钩子 / 集体钩子
 
-→ 完整钩子列表见 references/hooks.md
+→ 完整钩子列表见 ../publishing/references/hooks.md
 
 ### 步骤2：判断钩子质量
 - **合格**：命中≥2个钩子，且至少1个是"冲突/身份/反转"类
@@ -42,7 +42,7 @@ description: |
 ### 步骤3：骨架匹配
 根据标题内容，匹配最合适的骨架公式。
 
-→ 13种骨架公式见 references/hooks.md
+→ 13种骨架公式见 ../publishing/references/hooks.md
 
 ### 步骤4：生成改写标题
 每个标题至少给2条改写方案，每条包含：
@@ -63,7 +63,7 @@ description: |
 - 关键道具（0-10）：是否有身份/情感/权力类符号
 - 文字标签（0-10）：是否极简5-7词
 
-→ 完整规则见 references/covers.md
+→ 完整规则见 ../publishing/references/covers.md
 
 ### 步骤2：协同诊断
 封面和标题是否围绕同一个"核心钩子"分工协作？
