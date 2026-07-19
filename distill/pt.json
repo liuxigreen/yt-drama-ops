@@ -1,11 +1,4 @@
 {
-  "meta": {
-    "version": "3.1.0",
-    "generated_at": "2026-06-23T16:59:10.494394Z",
-    "source": "mimo+gpt55-merged",
-    "distill_lang": "葡萄牙",
-    "knowledge_lang": "葡萄牙"
-  },
   "stats": {
     "avg_title_length": 88,
     "emoji_rate": 19.7,
@@ -34,21 +27,16 @@
       "Thursday"
     ],
     "key_words": [
-      "总裁/首富/霸总",
-      "甜宠/爱情",
-      "隐藏身份",
-      "逆袭",
-      "复仇",
-      "离婚/前妻",
-      "战神/战王",
-      "重生/穿越",
-      "怀孕/带娃",
-      "其他",
-      "契约婚姻",
-      "豪门/家族",
-      "赘婿/弃婿",
-      "千金/公主",
-      "保姆/佣人"
+      "CEO",
+      "amor",
+      "garota",
+      "esposa",
+      "bilionário",
+      "marido",
+      "pobre",
+      "enganado",
+      "vingança",
+      "segredo"
     ]
   },
   "why": {
@@ -781,5 +769,13 @@
         }
       ]
     }
+  },
+  "boundaries": {
+    "sample_size_warning": "葡萄牙语样本量为 358 个标题，属于中等规模样本。",
+    "missing_fields": [
+      "CTR",
+      "完播率"
+    ],
+    "notes": "葡萄牙语市场主要覆盖巴西、葡萄牙等地区。"
   }
 }
