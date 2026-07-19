@@ -63,9 +63,14 @@ description: |
 **此时禁读**：
 - 所有 examples、句式模板、骨架示例句
 
-### 步骤2：元素组合生成（从瞬间+元素出发）
+### 步骤2：多骨架元素组合生成（从瞬间+元素+骨架出发）
 
 每条候选锚定一个取景瞬间，用目标语言自由写作。
+
+**骨架多样性要求**：
+- 必须覆盖≥3种不同骨架（从13种骨架中选择）
+- 每种骨架对应不同钩子组合
+- 避免同一骨架重复使用
 
 **强制约束（必须包含）**：
 - **格式词**：根据市场选择 [Full]/[ENG DUB]/[ENG SUB] 等
@@ -74,6 +79,24 @@ description: |
 - **反转词**：至少1个（But/Actually/Unaware/Turns out等）
 - **长度**：≥70字符（接近市场均长）
 - **结构**：前半句（冲突/低位）+ 转折 + 后半句（反转/高位）
+
+**骨架×钩子配对规则**：
+
+| 骨架类型 | 最佳钩子组合 | 适用剧情 |
+|----------|-------------|----------|
+| 身份落差打脸型 | identity + reversal | CEO豪门、隐藏战神、真假千金 |
+| 关系背叛补偿型 | relationship + compensation | 追妻火葬场、离婚逆袭 |
+| 重生改命型 | time + identity + revenge | 重生复仇、大女主 |
+| 系统/能力觉醒型 | ability + reversal | 系统流、穿越 |
+| 情绪爆点场景型 | emotion + conflict + reversal | 虐恋、甜宠、家庭伦理 |
+| 被迫关系升温型 | relationship + time + reversal | 契约婚姻、先婚后爱 |
+| 隐藏强者救援型 | ability + identity + reversal | 武术、神医、乡村高手 |
+| 亲情守护打脸型 | relationship + identity + reversal | 男频战神、家族复仇 |
+| 集体误判打脸型 | collective + ability + reversal | 打脸逆袭、隐藏强者 |
+| 绝嗣/意外得子型 | relationship + ability + reversal | 霸总甜宠、带球跑 |
+| 危险权势反差甜宠型 | conflict + ability + reversal | 黑帮恋人、霸总甜宠 |
+| 命运道具触发型 | prop + time + revenge | 豪门误会、穿越 |
+| 天才儿童破局型 | relationship + identity + reversal | 天才儿童、萌宝 |
 
 **元素组合方式**（不是机械叠加，而是根据剧情选择最合适组合）：
 - 题材"穿越" → 时间钩子 + 身份反转
@@ -87,7 +110,7 @@ description: |
 - 产出不得与库内示例句构成"仅替换身份词"的同构句
 - 但**必须使用**句式模板中的转折词和结构
 
-**数量**：默认 5–10 条
+**数量**：默认 5–10 条（覆盖≥3种骨架）
 
 ### 步骤3：评分（骨架首次出场）
 
