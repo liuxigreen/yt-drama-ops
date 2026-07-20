@@ -155,7 +155,8 @@ description: |
 - `title`：标题文本
 - `language`：语言
 - `取景来源`：瞬间编号
-- `同构骨架`：匹配的骨架类型（如有）
+- `骨架归属`：匹配的骨架类型（可多个，逗号分隔）或 `emergent:自述名称`
+- `emergent`：true/false（是否为emergent模式）
 - `hooks`：命中钩子列表
 - `score`：评分（0-100）
 - `先验引用`：引用的先验数据（如有）
@@ -256,7 +257,9 @@ description: |
       "title": "标题文本",
       "language": "语言",
       "scene_id": "取景来源（瞬间编号）",
-      "skeleton": "同构骨架类型（如有）",
+      "skeleton": "骨架类型（可多个，逗号分隔）",
+      "emergent": false,
+      "emergent_desc": "emergent模式时的自述新骨架（仅emergent=true时填写）",
       "hooks": ["钩子1", "钩子2"],
       "score": 85,
       "prior_ref": "先验引用（如有）",
@@ -310,6 +313,7 @@ description: |
 
 4. **阈值必须带出处标注**：`[来源:频道名 基线 日期]`
 
-5. **新pattern候选**：
-   - 评分≥80 且不匹配已知骨架 → 标 `新pattern候选`
-   - 真实追加 `knowledge/pending.md`，含：标题、评分、不匹配原因、建议验证方式
+**5. 新pattern候选**：
+   - 匹配不到已知骨架且连贯 → 进入 emergent 模式（步骤4已定义）
+   - 真实追加 `knowledge/pending.md`，含：标题、AI自述的新骨架、数据信号、建议验证方式
+   - 同一 emergent 模式验证≥3次 → 提示升入 hooks.md
