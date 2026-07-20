@@ -56,6 +56,7 @@ description: |
 - `how.rhetorical_patterns` → 句式模板、标点策略、emoji策略
 - `how.title_constraints` → 长度、格式词、key_words、top_emojis
 - `why.title` → 原理（为什么有效）
+- `what` → 故事模板（6个），理解该语言市场验证过的故事结构
 
 **理解但不套用**：
 - 理解骨架的叙事结构和心理机制
@@ -93,7 +94,7 @@ description: |
 - **长度**：是否接近市场均长（distill stats）
 
 **评分标准**：
-- 90-100分：画面感强、骨架匹配、钩子配对、叙事递进、长度60-90、有高位身份词
+- 90-100分：画面感强、骨架匹配、钩子配对、叙事递进、长度60-90、优先有高位身份词
 - 80-89分：画面感强、骨架匹配、钩子配对，但叙事递进或长度略有偏差
 - 70-79分：画面感强，但骨架或钩子或叙事递进有明显问题
 - <70分：需要重写
@@ -121,7 +122,7 @@ description: |
 检查每条标题是否包含必要元素：
 - ❌ 缺格式词 → 补 [ENG DUB]/[Full] 等（英文市场优先用[ENG DUB]）
 - ❌ 缺情绪emoji → 补 🔥💕💔 等
-- ❌ 缺身份词 → 补 CEO/Billionaire/Heiress 等（**优先有高位身份词**）
+- ⚠️ 缺身份词 → 优先补 CEO/Billionaire/Heiress 等高位身份词（**非强制，画面感强的标题可不补**）
 - ❌ 缺反转词 → 补 But/Actually/Unaware 等
 - ❌ 长度超限 → 缩短至60-90字符（**硬上限≤90**）
 
@@ -157,15 +158,22 @@ description: |
 | 数据 | 时机 | 角色 |
 |------|------|------|
 | 剧情 | 步骤1 | 取景来源 |
-| distill/{lang}.json（骨架、钩子、包装模式） | 步骤2 | 理解但不套用 |
+| distill/{lang}.json（骨架、钩子、故事模板、包装模式） | 步骤2 | 理解但不套用 |
 | 母版（骨架、钩子、叙事递进、反例） | 步骤4 | 评分尺 |
 | distill stats（长度、emoji、格式词） | 步骤5 | 合规检查 |
+| distill/{lang}.json（封面指南、协同规则、封面原理） | 封面步骤1 | 选卡依据 |
 
 ---
 
 ## 封面指令生成
 
 ### 步骤1：选模板卡
+
+**先读取distill封面数据**：
+- `how.thumbnail_guidelines` → 缩略图设计指南
+- `how.cover_title_synergy` → 封面标题协同规则
+- `why.thumbnail` → 封面原理（为什么有效）
+
 按hook类型从 `references/cover-template-cards.md` 的7张模板卡中选卡：
 → 选卡后，使用该卡的**标准生图Prompt**：
   - 固定骨架不可改（构图/景别/安全区来自蒸馏统计）
@@ -193,7 +201,7 @@ description: |
 
 ### 步骤1：四层标签矩阵
 1. 题材层：#ceolovestory #reborn #revenge #drama
-2. 情绪层：#love #betrayal #regrets #beggging
+2. 情绪层：#love #betrayal #regrets #begging
 3. 格式层：#shortdrama #minidrama #FULL #ENG DUB
 4. 语言层：#cdrama #kdrama #engsub #español
 
@@ -244,12 +252,15 @@ description: |
     }
   ],
   "cover_instruction": {
+    "template_card": "所选模板卡名称（如：身份反差局）",
     "composition": "构图描述",
     "figures": "人物描述",
     "emotion": "情绪描述",
     "props": "道具描述",
     "colors": "色彩描述",
-    "text": "封面文字（如有）"
+    "text": "封面文字（如有）",
+    "reference_prompts": ["注入的参考prompt来源"],
+    "generated_prompt": "完整生图prompt（可直接喂给DALL-E/Midjourney）"
   },
   "tags": {
     "title_tags": ["#tag1", "#tag2"],
