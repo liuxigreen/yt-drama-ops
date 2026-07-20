@@ -89,7 +89,7 @@ description: |
 **评分维度**：
 - **画面感**：具体场景、动作、数字（母版规则：低位身份必须具体可画面化）
 - **骨架匹配**：可匹配多个骨架（多骨架叠加合法），如"身份落差+关系背叛"同时命中
-- **钩子配对**：是否使用最强配对（identity+reversal、emotion+reversal等）
+- **钩子配对**：根据剧情选择钩子组合（最强配对仅供参考：emotion+identity、relationship+reversal、identity+reversal、compensation+reversal、time+relationship）；命中低效组合（单独compensation、单独reversal、只有romance没有冲突等）直接扣分
 - **叙事递进**：是否符合母版叙事递进（伤害→离开→后悔、低位→误判→高位揭露等）
 - **长度**：是否接近市场均长（distill stats）
 
