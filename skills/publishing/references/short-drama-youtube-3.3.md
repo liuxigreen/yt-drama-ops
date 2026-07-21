@@ -1124,7 +1124,7 @@ Text overlay area: bottom 15% dark gradient, top-left badge "FULL EPISODES",
 - emotion/symbols等保持软约束+偏离声明机制
 - 改完一张卡贴diff即可，不用全贴
 
-**状态**：模板卡1（身份反差局）已在外部仓库 yt-drama-ops 实现并推送（commit f065131）。剩余6张卡待补。外部仓库short-drama-youtube-3.1.md已同步更新变量槽表格+软约束说明+范例变量填充。
+**状态**：7张模板卡已全部实现（identity/relationship/emotion/reversal/time/compensation/system），见 `references/cover-template-cards.md`。
 
 ## 非核心语种降级策略
 

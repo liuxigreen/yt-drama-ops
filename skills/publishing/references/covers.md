@@ -74,5 +74,5 @@
 - 封面prompt必须是自然语言描述一个具体画面，不是构图规则说明书
 - 人物必须有3个细节：外貌特征 + 服装 + 动作/表情
 - 道具必须跟剧情挂钩，不是泛泛的"西装/婚戒"
-- 结尾固定：`CONSTRAINTS: NO text, NO Chinese characters, NO gibberish in image`
+- 结尾固定：`CONSTRAINTS: NO random text, NO Chinese characters, NO gibberish in image. Allowed: structured title text in bottom 15% zone only.`
 - 尺寸固定：16:9 landscape, 1280x720
