@@ -65,7 +65,7 @@ description: |
 3. **不要写像素级布局**（"60% center-low"），ChatGPT不认——用自然语言说"dominates the left foreground"
 4. **色彩用具体描述**（"warm golden light, cold blue shadows"）不用HEX色值
 5. **100-150词最佳**，超过150词ChatGPT会忽略后面内容
-6. **末尾必须加**：`CONSTRAINTS: NO text, NO Chinese characters, NO gibberish in image`
+6. **末尾必须加**：`CONSTRAINTS: NO random text, NO Chinese characters, NO gibberish in image. Allowed: structured title text in bottom 15% zone only.`
 7. **指定**：`16:9 landscape, 1280x720, photorealistic, cinematic, thumbnail-friendly`
 8. **竞品封面都是AI生成的**，不是真人实拍——不要假设"我们AI生图质量不如真人"
 

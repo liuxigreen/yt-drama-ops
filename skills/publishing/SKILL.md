@@ -86,7 +86,7 @@ description: |
 - 不使用已验证的句式模板（如 "She was actually..."、"He didn't know she was..."）
 - 不锚定任何已知骨架的叙事结构
 - 从"这个剧情最让人意想不到的点是什么"出发写作
-- 标 `mode: contrarian`，走 emergent 通道评分（见步骤4）
+- 标 `mode: contrarian`，走独立评分通道（见步骤4「反惯例候选评分」，不走 emergent 通道）
 
 
 ### 步骤4：评分（用母版评分）
