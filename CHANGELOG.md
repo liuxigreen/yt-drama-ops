@@ -2,6 +2,33 @@
 
 All notable changes to yt-drama-ops will be documented in this file.
 
+## [1.2.0] - 2026-07-26 (诊断侧对齐生成侧)
+
+### Fixed
+- **video-optimization/SKILL.md**：骨架体系从"13种封闭"改为"非穷尽 + emergent + contrarian"
+- **video-optimization/SKILL.md**：钩子分类从"7种钩子"改为"6类 + 新发现钩子（非穷尽）"
+- **video-optimization/SKILL.md**：新增 contrarian 独立评分通道（信息缺口强度，非"≥2钩子"规则）
+- **video-optimization/SKILL.md**：钩子质量判断区分标准模式（合格/不足/失败）和 contrarian 模式（强/中/弱）
+- **channel-diagnosis/SKILL.md**：步骤2从"自行重做标题分析"改为"聚合 per-video hooks/skeleton/mode"
+- **channel-diagnosis/SKILL.md**：步骤9从"悬空协同分"改为"聚合 per-video 封面四维 + 协同判定"
+- **channel-diagnosis/SKILL.md**：数值矛盾消除——长度标准统一引用 publishing distill（60-90字符），不再说"控制在50内"
+
+### Added
+- **video-optimization/SKILL.md**：新增标准 per-video 诊断 JSON 输出格式（mode/hooks/skeleton/score/cover），供 channel-diagnosis 消费
+- **video-optimization/SKILL.md**：新增骨架匹配逻辑（creative → emergent → contrarian 三级判定）
+- **video-optimization/SKILL.md**：新增评分体系（Creative/Emergent 评分 + Contrarian 独立评分）
+- **channel-diagnosis/SKILL.md**：新增 per-video 诊断数据协议（设计意图 + 数据来源 + 消费方式）
+- **channel-diagnosis/SKILL.md**：新增 title_aggregation 和 cover_aggregation 聚合字段
+- **channel-diagnosis/SKILL.md**：新增 per_video_data 字段标注数据来源
+- **channel-diagnosis/references/hooks.md**：从 publishing 同步，供频道级骨架/钩子参考
+- **channel-diagnosis/references/covers.md**：从 publishing 同步，供封面协同参考
+
+### Architecture
+- **数据流接通**：video-optimization 输出标准 per-video JSON → 持久化 → channel-diagnosis 消费聚合
+- **骨架本体统一**：publishing / video-optimization / channel-diagnosis 三处共享同一份 hooks.md（非穷尽 + emergent + contrarian）
+- **评分口径统一**：封面评分以 video-opt 四维为唯一标准，channel 聚合不重做
+- **数值同源**：长度、emoji、钩子策略均引用同一份 distill 数据
+
 ## [1.1.0] - 2026-07-12 (定版v3)
 
 ### Fixed

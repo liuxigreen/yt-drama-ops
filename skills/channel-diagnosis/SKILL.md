@@ -5,6 +5,7 @@ description: |
   当用户给出频道链接并询问频道表现、增长瓶颈、视频优化方向时使用。
   支持四档数据降级：OAuth全量 / Studio截图 / 公开数据 / 纯标题封面。
   数据不足时自动压低置信，绝不硬下结论。
+  骨架体系与 publishing / video-optimization 共享：非穷尽 + emergent + contrarian。
 ---
 
 # YouTube 短剧频道诊断
@@ -51,6 +52,40 @@ description: |
 
 ---
 
+## per-video 诊断数据协议
+
+### 设计意图
+
+频道诊断的步骤2（标题诊断）和步骤9（封面协同）**消费** video-optimization 的 per-video 诊断输出，不自行重做。
+
+### 数据来源
+
+每个视频的诊断数据（来自 video-optimization skill）包含：
+- `mode`：creative / emergent / contrarian
+- `hooks.found`：命中钩子列表
+- `hooks.quality`：合格/不足/失败（标准模式）或 强/中/弱（contrarian）
+- `skeleton.match`：骨架类型
+- `score.total`：综合评分
+- `cover.{figure,emotion,props,text,avg}`：封面四维评分
+- `cover.synergy_score`：协同分
+- `optimized_titles`：改写方案
+
+### 消费方式
+
+**当有 per-video 诊断数据时**：
+- 步骤2 直接聚合 per-video 的 hooks/skeleton/mode 数据
+- 步骤9 直接聚合 per-video 的 cover 四维 + synergy 数据
+- optimized_titles 从 per-video 改写汇总
+
+**当没有 per-video 诊断数据时**（只有原始标题/封面）：
+- 步骤2 做简化版标题统计（长度、emoji、重复开头）—— 但骨架/钩子分析标注"需video-opt"
+- 步骤9 用封面四维评分做初步判断 —— 但协同分标注"需video-opt确认"
+- 输出中明确标注 `per_video_data: false`
+
+**铁律**：有 per-video 数据时，channel 不重做钩子/骨架判定；没有时，简化统计不替代 video-opt 的深度分析。
+
+---
+
 ## 诊断前置：先判数据档位
 
 拿到任何频道，第一步不是分析，是**判断数据够到哪一档**。档位决定能出什么结论、置信多高。
@@ -79,12 +114,43 @@ description: |
 **触发规则**：
 - cliff < 0.3 → **critical**：近期流量断崖，最近只有之前的 {ratio}。动作：查最近3条是否违规词；对比断崖前后标题封面变化；停发2-3天再用爆款风格重启。
 
-### 步骤 2：标题模式诊断
-**看什么**：长度、emoji、钩子词、重复开头、长度-表现分桶。
+### 步骤 2：标题模式诊断（聚合版）
+
+**设计原则**：聚合 per-video 诊断数据，不自行重做钩子/骨架判定。
+
+#### 2a. 聚合 per-video 标题数据（有 video-opt 输出时）
+
+从 per-video 诊断 JSON 聚合以下频道级指标：
+
+| 指标 | 计算方式 | 含义 |
+|------|----------|------|
+| **骨架分布** | 各骨架类型的视频数占比 | 频道是否依赖单一骨架 |
+| **mode分布** | creative/emergent/contrarian 各占比 | 创新程度 |
+| **钩子命中率** | hooks.quality=合格 的视频占比 | 标题质量 |
+| **平均评分** | score.total 的均值和标准差 | 整体质量+一致性 |
+| **多骨架占比** | multi_skeleton.length>1 的视频占比 | 标题丰富度 |
+| **低效组合命中率** | pairing_rating=低效组合 的视频占比 | 需要优化的比例 |
+
 **触发规则**：
-- 平均长度 > 80 字符 → **major**：超60会被截断。动作：控制在50内；删"爆火短劇全集"等无意义后缀；开头重复emoji删到1个。
-- 重复 emoji 前缀（>50%视频相同）→ **major**：视觉疲劳降点击。动作：每视频1-2个相关emoji放末尾；纯文字标题点赞率反而更高（实测2.478% vs 1.195%）。
-- 标题开头重复 >2次 → **major**：观众以为内容重复。动作：每条开头用不同冲突场景（被开除/被退婚/被赶出）。
+- 单一骨架占比 > 60% → **major**：过度依赖单一模式，观众审美疲劳。动作：尝试其他骨架类型。
+- 钩子命中率 < 50% → **major**：多数标题钩子不足。动作：参考 hooks.md 的配对规则优化。
+- 低效组合命中率 > 30% → **info**：部分标题使用了低效钩子组合。
+- contrarian 占比 = 0 → **info**：所有标题都是公式化，可尝试1-2条反惯例标题测试。
+- emergent 占比 > 30% → **info**：大量标题不匹配已知骨架，可能是新题材或需要归类。
+
+#### 2b. 标题表层统计（独立于 video-opt）
+
+始终计算（不依赖 video-opt）：
+- 平均长度 vs 目标市场均长（引用 publishing 的 distill stats：60-90字符）
+- 重复 emoji 前缀（>50%视频相同）→ **major**：视觉疲劳降点击
+- 标题开头重复 >2次 → **major**：观众以为内容重复
+
+**数值同源**：长度标准引用 publishing 的 distill 数据（60-90字符），不自行定义50或其他值。emoji 策略同源。
+
+**触发规则**：
+- 平均长度 > 90 字符 → **major**：超90会被截断。动作：控制在60-90内。
+- 重复 emoji 前缀（>50%视频相同）→ **major**：动作：每视频1-2个相关emoji，放在自然位置。
+- 标题开头重复 >2次 → **major**：动作：每条开头用不同冲突场景。
 
 ### 步骤 3：点赞漏斗诊断
 **看什么**：点赞率、评论率、零互动比例、高互动比例。
@@ -121,16 +187,41 @@ description: |
 **触发规则**：
 -（此维度暂无通用规则，待验证后补充）
 
-### 步骤 9：封面×标题协同诊断（需封面数据）
-**看什么**：封面和标题是否围绕同一个"核心钩子"分工协作。
-**协同模式**（8种，开放式，不限于此）：
-- 标题给反差封面给证据、封面定格冲突标题补因果、情绪反转视觉化、肢体距离表达关系、阶层符号强化爽感、奇观服务战力、信息密度vs情绪密度、互补优于重复
-**反模式**（6种）：题材错位、只美不钩、标题有爆点封面无、信息过散、情绪强度不匹配、关键身份缺视觉锚点
+### 步骤 9：封面×标题协同诊断（聚合版）
+
+**设计原则**：聚合 per-video 的封面四维评分和协同判定，不自行重做。
+
+#### 9a. 聚合 per-video 封面数据（有 video-opt 输出时）
+
+从 per-video 诊断 JSON 聚合以下频道级指标：
+
+| 指标 | 计算方式 | 含义 |
+|------|----------|------|
+| **封面四维均值** | figure/emotion/props/text 各维度均值 | 整体封面质量 |
+| **协同分均值** | synergy_score 的均值和标准差 | 封面×标题配合度 |
+| **反模式命中率** | anti_patterns 非空的视频占比 | 需要修正的比例 |
+| **门面拖累视频数** | CTR<2.5% 且 AVD≥15% 的视频数（需A/B+档） | 内容好但门面差 |
+| **高CTR冻结视频数** | CTR≥4% 的视频数（需A/B+档） | 绝对禁止改动元数据 |
+
 **触发规则**：
-- 协同分 < 5 → **major**：封面和标题各说各话，没有形成合力。动作：重新设计封面，让封面视觉元素呼应标题的核心钩子。
-- 协同分 5-7 → **info**：有协同但不够强。动作：强化封面的情绪表达，让标题的承诺在封面上有视觉证据。
-- 门面拖累（CTR<2.5%但AVD≥15%）：内容没问题，门面没拉进来。策略**只准**"重置门面"——换封面+微调标题钩子，**严禁发散到剧情节奏或选题方向**。
-- 高CTR视频（CTR≥4%）：标题和封面已被算法验证，**绝对禁止改动元数据**（标题/封面/标签），避免触发Re-evaluation降权。
+- 封面四维均值 < 5 → **major**：整体封面质量差。动作：参考 covers.md 的诊断评分标准改进。
+- 协同分均值 < 5 → **major**：封面和标题各说各话。动作：重新设计封面，让视觉元素呼应标题的核心钩子。
+- 反模式命中率 > 30% → **info**：部分封面存在已知反模式。
+- 门面拖累视频数 > 0 → **major**：策略**只准**"重置门面"——换封面+微调标题钩子，**严禁发散到剧情节奏或选题方向**。
+- 高CTR冻结视频数 > 0 → **info**：这些视频标题和封面已被算法验证，**绝对禁止改动元数据**。
+
+#### 9b. 封面表层统计（独立于 video-opt）
+
+始终计算（不依赖 video-opt）：
+- 有封面URL的视频占比
+- 封面整体风格一致性（暖色/冷色、构图类型分布）
+
+**协同模式参考**（8种，开放式，不限于此）：
+→ 完整协同规则和反模式见 references/covers.md
+
+- 标题给反差封面给证据、封面定格冲突标题补因果、情绪反转视觉化、肢体距离表达关系、阶层符号强化爽感、奇观服务战力、信息密度vs情绪密度、互补优于重复
+
+**反模式**（6种）：题材错位、只美不钩、标题有爆点封面无、信息过散、情绪强度不匹配、关键身份缺视觉锚点
 
 ---
 
@@ -147,11 +238,27 @@ description: |
 
 ---
 
+## optimized_titles 生成规则
+
+**同源原则**：频道诊断的 optimized_titles 必须从 per-video 改写汇总，保证与 video-optimization 的改写建议一致。
+
+**当有 per-video 改写数据时**：
+- 从 per-video 的 optimized_titles 中选取最佳改写
+- 按 score.total 排序，取 top 3-5 条
+- 每条保留原字段：title / mode / skeleton / hooks / score / reason
+
+**当没有 per-video 改写数据时**：
+- 基于步骤2的标题统计，给出 2 条通用优化建议
+- 标注 `source: channel-level-suggestion`，明确不是 per-video 级别的精确改写
+
+---
+
 ## 输出格式（结构化报告）
 
 ```json
 {
   "data_tier": "A|B+|B|C",
+  "per_video_data": true,
   "health_score": 6.5,
   "health_grade": "A|B|C|D",
   "confidence": "high|medium|low",
@@ -168,10 +275,28 @@ description: |
       "表现平庸": 0
     }
   },
+  "title_aggregation": {
+    "skeleton_distribution": {"身份落差打脸型": 5, "关系背叛补偿型": 3},
+    "mode_distribution": {"creative": 6, "emergent": 1, "contrarian": 1},
+    "hook_hit_rate": 0.75,
+    "avg_score": 82.5,
+    "multi_skeleton_rate": 0.25,
+    "inefficient_pairing_rate": 0.12
+  },
+  "cover_aggregation": {
+    "avg_figure": 6.5,
+    "avg_emotion": 5.8,
+    "avg_props": 4.2,
+    "avg_text": 6.0,
+    "avg_synergy": 5.5,
+    "anti_pattern_rate": 0.25,
+    "doorface_drag_count": 1,
+    "high_ctr_frozen_count": 2
+  },
   "issues": [
     {
       "severity": "critical|major|info",
-      "category": "播放分布|标题|互动|...",
+      "category": "播放分布|标题|互动|封面协同|...",
       "issue": "问题（带具体数字）",
       "detail": "为什么（带数据）",
       "evidence": "支撑数据字段",
@@ -181,10 +306,13 @@ description: |
   "optimized_titles": [
     {
       "original": "原标题",
-      "new_title": "优化后标题",
+      "title": "优化后标题",
+      "mode": "creative|emergent|contrarian",
       "skeleton": "用了哪个骨架",
       "hooks": ["钩子1", "钩子2"],
-      "reason": "为什么这样改"
+      "score": 90,
+      "reason": "为什么这样改",
+      "source": "video-optimization|channel-level-suggestion"
     }
   ],
   "skipped": ["因数据不足跳过的维度 + 原因"],
@@ -201,6 +329,7 @@ description: |
 - **播放分布遵循幂律分布**，头部集中是平台正常机制，严禁列为"爆款依赖症"。诊断重点是"如何复制头部模式"。
 - **门面拖累只准重置门面**（CTR<2.5%但AVD≥15%），严禁发散到剧情节奏或选题。
 - **高CTR视频元数据冻结**（CTR≥4%），禁止改标题/封面/标签。
+- **per_video_data 字段必须如实标注**：有 video-opt 输出时 true，没有时 false。
 
 ---
 
@@ -216,10 +345,20 @@ description: |
 
 ---
 
+## 批量/Cron 执行
+
+当以 cron job 或批量模式运行诊断时，关键注意事项：
+→ 详见 references/batch-execution.md（超时要求、输出陷阱、JSON结构、幂等性）
+
+**速记**：snapshot 先于 diagnosis；`diagnose_channel.py --all` 需 600s 超时；后台进程无法捕获 Python 输出，必须前台执行。
+
+---
+
 ## 诚实边界
 - 阈值来自特定频道基线（diagnosis_engine.py），不同频道有差异。
 - CTR/完播阈值基于推断，非每个频道实测。
 - 无授权数据时，点击率和完播率维度不可诊断。
+- 骨架体系（非穷尽 + emergent + contrarian）与 publishing 共享，但诊断侧吸收生成侧的本体，不降级。
 
 ---
 
