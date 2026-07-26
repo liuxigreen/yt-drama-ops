@@ -192,20 +192,36 @@ yt-dlp --dump-json --playlist-items 1:30 {频道URL}
 
 从 Step 2 的 per-video 诊断结果聚合以下频道级指标：
 
+**标准指标**（creative + emergent 视频）：
+
 | 指标 | 计算方式 | 含义 |
 |------|----------|------|
 | **骨架分布** | 各骨架类型的视频数占比 | 频道是否依赖单一骨架 |
 | **mode分布** | creative/emergent/contrarian 各占比 | 创新程度 |
-| **钩子命中率** | hooks.quality=合格 的视频占比 | 标题质量 |
-| **平均评分** | score.total 的均值和标准差 | 整体质量+一致性 |
+| **钩子命中率** | hooks.quality=合格 的视频占比（仅 creative+emergent） | 标题质量 |
+| **平均评分** | score.total 的均值和标准差（仅 creative+emergent） | 整体质量+一致性 |
 | **多骨架占比** | multi_skeleton.length>1 的视频占比 | 标题丰富度 |
 | **低效组合命中率** | pairing_rating=低效组合 的视频占比 | 需要优化的比例 |
+
+**Contrarian 独立指标**（仅 contrarian 视频）：
+
+| 指标 | 计算方式 | 含义 |
+|------|----------|------|
+| **contrarian占比** | mode=contrarian 的视频数 / 总视频数 | 反惯例尝试频率 |
+| **contrarian平均分** | contrarian 视频的 score.total 均值 | 反惯例标题质量 |
+| **平均新颖度** | contrarian 视频的 novelty_score 均值（0-30） | 句式差异化程度 |
+| **平均信息缺口** | contrarian 视频的 info_gap_strength 均值（0-30） | 悬念制造能力 |
+
+**注意**：钩子命中率和平均评分只统计 creative+emergent 视频。contrarian 走独立评分通道，混入标准指标会导致失真。
 
 **触发规则**：
 - 单一骨架占比 > 60% → **major**：过度依赖单一模式。动作：尝试其他骨架类型。
 - 钩子命中率 < 50% → **major**：多数标题钩子不足。动作：参考 hooks.md 配对规则优化。
 - 低效组合命中率 > 30% → **info**：部分标题使用了低效钩子组合。
 - contrarian 占比 = 0 → **info**：所有标题都是公式化，可尝试反惯例标题。
+- contrarian 占比 > 30% → **info**：大量标题为反惯例，检查是否有足够数据验证效果。
+- contrarian 平均新颖度 < 15 → **info**：反惯例标题句式差异化不够，可能只是换了骨架但句式雷同。
+- contrarian 平均信息缺口 < 15 → **info**：反惯例标题悬念不足，需要强化"不点就难受"的缺口感。
 
 **标题表层统计**（始终计算，不依赖 per-video）：
 - 平均长度 vs 60-90 字符高播放带
@@ -319,9 +335,15 @@ yt-dlp --dump-json --playlist-items 1:30 {频道URL}
     "skeleton_distribution": {"身份落差打脸型": 5, "关系背叛补偿型": 3},
     "mode_distribution": {"creative": 6, "emergent": 1, "contrarian": 1},
     "hook_hit_rate": 0.75,
-    "avg_score": 82.5,
+    "avg_score_creative_emergent": 82.5,
     "multi_skeleton_rate": 0.25,
-    "inefficient_pairing_rate": 0.12
+    "inefficient_pairing_rate": 0.12,
+    "contrarian": {
+      "ratio": 0.12,
+      "avg_score": 78,
+      "avg_novelty": 22,
+      "avg_info_gap": 25
+    }
   },
   "cover_aggregation": {
     "avg_figure": 6.5,

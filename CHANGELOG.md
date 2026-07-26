@@ -2,6 +2,19 @@
 
 All notable changes to yt-drama-ops will be documented in this file.
 
+## [1.2.2] - 2026-07-26 (Contrarian聚合 + Schema版本 + Emergent规范)
+
+### Fixed
+- **channel-diagnosis/SKILL.md**：contrarian 独立聚合 — 新增 contrarian_ratio / avg_score / avg_novelty / avg_info_gap 四个独立指标
+- **channel-diagnosis/SKILL.md**：钩子命中率和平均评分只统计 creative+emergent，不混入 contrarian
+- **channel-diagnosis/SKILL.md**：新增 contrarian 触发规则（占比>30%、新颖度<15、信息缺口<15）
+
+### Added
+- **video-optimization/SKILL.md**：per-video JSON 新增 `schema_version: "1.0"` 字段
+- **video-optimization/SKILL.md**：per-video JSON 新增 `info_gap_strength` 字段（仅 contrarian）
+- **video-optimization/SKILL.md**：emergent_desc 格式规范 — 必须包含"融合家族 + 新在哪 + 为什么连贯"
+- **video-optimization/SKILL.md**：emergent 自动记录 pending.md — 含标题/融合家族/数据信号/验证建议
+
 ## [1.2.1] - 2026-07-26 (Bug修复 + 频道诊断流程重构)
 
 ### Fixed

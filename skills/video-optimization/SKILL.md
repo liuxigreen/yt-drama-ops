@@ -97,6 +97,25 @@ description: |
      └─ 否 → 打回重写（限1次）
 ```
 
+**Emergent 自述新骨架格式规范**：
+当判定为 emergent 时，`skeleton.emergent_desc` 必须按以下格式填写：
+```
+{融合了哪些已知家族} + {新在哪里} + {为什么连贯}
+```
+示例：`"融合身份落差打脸型+亲情守护打脸型，新在加入了跨代复仇线（祖孙三代），因为低位身份+亲情守护+公开打脸的叙事递进成立"`
+
+**自动记录 pending**：每次产出 emergent 标题时，必须自动追加到 `knowledge/pending.md`：
+```markdown
+## {日期} | emergent: {自述名称}
+- 标题: {原标题}
+- 融合家族: {家族A} + {家族B}
+- 新在哪: {描述}
+- 数据信号: {长度/钩子/叙事递进是否成立}
+- 建议验证: {如何验证这个新模式}
+- 状态: 待验证
+```
+同模式被验证≥3次 → 提示升入 hooks.md 作为新家族。
+
 **"不连贯"判定**：缺钩子 / 超长度 / 无叙事递进 / 命中低效组合
 
 **Contrarian判定**（检查标题是否故意跳出已知框架）：
@@ -193,6 +212,7 @@ description: |
 
 ```json
 {
+  "schema_version": "1.0",
   "video_id": "视频ID或标题摘要",
   "original_title": "原标题",
   "mode": "creative|emergent|contrarian",
@@ -219,7 +239,8 @@ description: |
       "narrative": 12,
       "length": 8
     },
-    "novelty_score": null
+    "novelty_score": null,
+    "info_gap_strength": null
   },
   "issues": ["问题描述"],
   "optimized_titles": [
@@ -251,7 +272,8 @@ description: |
 - `hooks.quality`：标准模式用"合格/不足/失败"，contrarian用"强/中/弱"
 - `skeleton.match`：主要骨架，`multi_skeleton` 为多骨架叠加
 - `skeleton.view_range`：来自 references/hooks.md 的播放范围
-- `score.novelty_score`：仅 contrarian 模式有值
+- `score.novelty_score`：仅 contrarian 模式有值（句式新颖度 0-30）
+- `score.info_gap_strength`：仅 contrarian 模式有值（信息缺口强度 0-30）
 - `cover`：四维评分 + 协同判定，channel-diagnosis 步骤9 直接消费此字段
 
 ---
