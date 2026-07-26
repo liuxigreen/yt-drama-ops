@@ -2,6 +2,20 @@
 
 All notable changes to yt-drama-ops will be documented in this file.
 
+## [1.2.1] - 2026-07-26 (Bug修复 + 频道诊断流程重构)
+
+### Fixed
+- **video-optimization/SKILL.md**：Bug1 — 新增参考体系章节，明确引用 publishing 母版的句式模板/长度约束/反转词
+- **video-optimization/SKILL.md**：Bug2 — 评分锚点从"(n, avg_views)"改为"骨架类型 + 播放范围"（来自 hooks.md）
+- **video-optimization/SKILL.md**：改写标题时增加语言询问机制和长度/句式/反转词约束
+
+### Redesigned
+- **channel-diagnosis/SKILL.md**：频道诊断必须先跑 per-video 诊断（Step 0→1→2→3→4）
+- **channel-diagnosis/SKILL.md**：新增 Step 0 取数协议（YouTube Data API + yt-dlp 双数据源）
+- **channel-diagnosis/SKILL.md**：新增 Step 1 视频选择策略（头部+近期+问题，5-10条，按频道规模适配）
+- **channel-diagnosis/SKILL.md**：新增 Step 2 逐条跑 video-optimization 诊断
+- **channel-diagnosis/SKILL.md**：步骤2/9明确从 per-video 聚合，不再有"独立重做"路径
+
 ## [1.2.0] - 2026-07-26 (诊断侧对齐生成侧)
 
 ### Fixed
