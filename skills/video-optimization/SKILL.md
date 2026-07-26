@@ -1,11 +1,24 @@
 ---
 name: video-optimization
+version: "1.2.2"
 description: |
   YouTube短剧单视频优化专家 — 钩子识别、骨架匹配、封面协同、标题改写。
   当用户给出一个视频标题/封面并询问如何优化、改写、提升CTR时使用。
   基于跨语言验证的骨架体系（非穷尽）+ 钩子聚类 + emergent/contrarian模式。
-  诊断规则引用 publishing 的母版 short-drama-youtube-3.3.md（跨语言通用规则）。
   触发词：优化标题、改写标题、钩子分析、骨架匹配、封面诊断
+tags: [youtube, short-drama, title-optimization, hook-analysis, skeleton-matching, cover-synergy]
+author: liuxi
+license: MIT
+platform: [hermes, claude, chatgpt, any-llm]
+triggers:
+  - 优化标题
+  - 改写标题
+  - optimize title
+  - rewrite title
+  - 钩子分析
+  - hook analysis
+  - 骨架匹配
+  - skeleton matching
 ---
 
 # YouTube短剧单视频优化

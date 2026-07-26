@@ -2,6 +2,20 @@
 
 All notable changes to yt-drama-ops will be documented in this file.
 
+## [1.3.0] - 2026-07-26 (标准化改造)
+
+### Added
+- **README.md**：中英文双语重写 — 架构图、多平台安装指南、快速开始、依赖关系
+- **INSTALL.md**：详细分平台安装指南 — Hermes / Claude Code / ChatGPT / 任意 Agent 框架
+- **各 SKILL.md frontmatter**：标准化字段 — version / tags / author / license / platform / triggers
+
+### Standardized
+- 所有 SKILL.md 增加 `version` 字段（channel-diagnosis: 1.2.2, video-optimization: 1.2.2, publishing: 3.3.0, persona: 1.0.0）
+- 所有 SKILL.md 增加 `tags` 便于搜索和分类
+- 所有 SKILL.md 增加 `triggers` 明确触发词列表
+- 所有 SKILL.md 增加 `platform` 声明支持的平台
+- video-optimization frontmatter 去掉对 publishing 母版的内部引用描述
+
 ## [1.2.2] - 2026-07-26 (Contrarian聚合 + Schema版本 + Emergent规范)
 
 ### Fixed

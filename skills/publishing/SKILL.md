@@ -1,10 +1,25 @@
 ---
 name: yt-drama-publishing
+version: "3.3.0"
 description: |
   YouTube短剧上架专家 — 生成标题、封面指令、标签、描述、发布策略。
   当用户给出剧名并询问如何上架、出标题、设计封面、优化标签时使用。
   基于跨语言蒸馏数据的骨架体系（非穷尽）+ 钩子体系 + 包装模式。支持emergent新骨架识别。
   触发词：生成标题、出标题、封面设计、标签优化、上架方案、发布策略
+tags: [youtube, short-drama, publishing, title-generation, cover-design, tag-optimization]
+author: liuxi
+license: MIT
+platform: [hermes, claude, chatgpt, any-llm]
+triggers:
+  - 生成标题
+  - 出标题
+  - generate title
+  - 封面设计
+  - cover design
+  - 标签优化
+  - tag optimization
+  - 上架方案
+  - publishing strategy
 ---
 
 # YouTube短剧上架专家

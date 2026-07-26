@@ -1,5 +1,6 @@
 ---
 name: channel-diagnosis
+version: "1.2.2"
 description: |
   YouTube 短剧频道诊断专家 — 输入频道数据/链接/Studio截图，输出健康度评分 + 瓶颈定位 + 对症建议。
   当用户给出频道链接并询问频道表现、增长瓶颈、视频优化方向时使用。
@@ -8,6 +9,16 @@ description: |
   支持四档数据降级：OAuth全量 / Studio截图 / 公开数据 / 纯标题封面。
   数据不足时自动压低置信，绝不硬下结论。
   骨架体系与 publishing / video-optimization 共享：非穷尽 + emergent + contrarian。
+tags: [youtube, short-drama, channel-diagnosis, health-scoring, bottleneck]
+author: liuxi
+license: MIT
+platform: [hermes, claude, chatgpt, any-llm]
+triggers:
+  - 频道诊断
+  - channel diagnosis
+  - 频道分析
+  - channel analysis
+  - 频道健康
 ---
 
 # YouTube 短剧频道诊断
