@@ -92,3 +92,9 @@ for lang in ["en", "tr", "id", "jp", "es", "繁中", "葡萄牙"]:
 | 葡 | 358 | 88 | 18.7% |
 
 **关键发现**：tr的emoji率确实只有1.3%（土耳其市场不爱emoji），不是脏值。
+
+> **2026-10-24 已应用**：上表重算值已回写至 `distill/{lang}.json` 的
+> `how.title_constraints.avg_length` 与 `emoji_rate` 字段，并同步更新
+> `title-quality-checklist.md` 的各语言速查表（新增 emoji 率列）。
+> 修复前 7 语种 emoji_rate 普遍虚高 2-4 倍（en 194.0），tr 的 avg_length 被置 0，
+> 导致土耳其市场的长度硬门完全失效。

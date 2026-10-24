@@ -162,7 +162,7 @@ triggers:
 **5a. 合规检查**：
 - 长度 vs 目标市场均长（distill stats）
 - 核心钩子在前 60–80 字符
-- emoji ≤ 市场规范且在 top_emojis 内
+- emoji ≤ 市场规范且在 top_emojis 内（各语种 emoji 率上限见 references/title-quality-checklist.md；土耳其市场仅 1.3%，几乎不加 emoji）
 - 有反转词（目标语言反转词表）
 - 主角主动性检查（不得被动等救）
 - 过一遍母本骨架"反例"清单

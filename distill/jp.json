@@ -324,7 +324,7 @@
     },
     "title_constraints": {
       "avg_length": 72,
-      "emoji_rate": 69.8,
+      "emoji_rate": 23.2,
       "top_emojis": [
         "🔥",
         "💔",
@@ -656,7 +656,8 @@
       "标签语义分组为空",
       "流量来源",
       "订阅转化率"
-    ]
+    ],
+    "data_correction": "title_constraints.avg_length 与 emoji_rate 已按原始标题重算值修正（样本 155 条，2026-07-21，来源：skills/publishing/references/distill-data-validation.md）。蒸馏合并阶段存在 avg_length 置 0 与 emoji_rate 虚高 2-4 倍的脏值。"
   },
   "stats": {
     "avg_title_length": 74,

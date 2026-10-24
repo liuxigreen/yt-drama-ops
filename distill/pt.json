@@ -658,7 +658,7 @@
     },
     "title_constraints": {
       "avg_length": 88,
-      "emoji_rate": 56.4,
+      "emoji_rate": 18.7,
       "top_emojis": [
         "😭",
         "💌",
@@ -776,6 +776,7 @@
       "CTR",
       "完播率"
     ],
-    "notes": "葡萄牙语市场主要覆盖巴西、葡萄牙等地区。"
+    "notes": "葡萄牙语市场主要覆盖巴西、葡萄牙等地区。",
+    "data_correction": "title_constraints.avg_length 与 emoji_rate 已按原始标题重算值修正（样本 358 条，2026-07-21，来源：skills/publishing/references/distill-data-validation.md）。蒸馏合并阶段存在 avg_length 置 0 与 emoji_rate 虚高 2-4 倍的脏值。"
   }
 }

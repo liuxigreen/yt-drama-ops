@@ -388,10 +388,25 @@ yt-dlp --dump-json --playlist-items 1:30 {频道URL}
       "source": "video-optimization"
     }
   ],
+  "cover": {
+    "figure": 7,
+    "emotion": 5,
+    "props": 6,
+    "text": 8,
+    "avg": 6.5,
+    "synergy_score": 7,
+    "synergy_desc": "封面和标题协同度描述",
+    "anti_patterns": [],
+    "suggestions": ["具体改进建议"]
+  },
   "skipped": ["因数据不足跳过的维度 + 原因"],
   "next_check": "24h|48h|1week"
 }
 ```
+
+**cover 字段说明**：与 video-optimization 的 per-video JSON 契约完全一致——
+诊断侧直接承接单视频诊断产出的封面四维评分与协同判定，`cover_aggregation` 段由本字段
+聚合而来（avg 为各视频 avg 的均值，anti_pattern_rate 为命中反模式视频占比）。
 
 **报告纪律**：
 - 每条 issue 必须有 `evidence` 字段（具体数字），禁止"感觉不太行"。
