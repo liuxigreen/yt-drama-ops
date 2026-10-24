@@ -25,7 +25,7 @@
 | tr | 88 | 88 | 1.3% | 🔥💞 | Ancak, ama, gerçeği öğrenince, aslında |
 | zh-tw | 76 | 76 | 24.3% | 🔥💥💖💢🍊 | 豈料, 殊不知, 原来, 怎料, 不料 |
 
-> 均长与 emoji 率来自原始标题重算（样本量 149-843 条/语种，2026-07-21，详见 distill-data-validation.md）。
+> 均长与 emoji 率来自原始标题重算（样本量 149-843 条/语种，2026-07-21）。
 > **两个均长口径不同**：均长(高播放)取自 `stats.avg_title_length`（高播放标题样本，含 [ENG DUB]/[Full] 等格式词，故偏长）；
 > 均长(全样本)取自 `how.title_constraints.avg_length`（全量标题）。
 > **长度硬门（60-90 字符）以全样本口径为准**，与 SKILL.md 步骤4 评分标准一致。

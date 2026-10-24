@@ -668,7 +668,7 @@
       "是否投放廣告",
       "授權/非授權狀態"
     ],
-    "data_correction": "title_constraints.avg_length 与 emoji_rate 已按原始标题重算值修正（样本 571 条，2026-07-21，来源：skills/publishing/references/distill-data-validation.md）。蒸馏合并阶段存在 avg_length 置 0 与 emoji_rate 虚高 2-4 倍的脏值。"
+    "data_correction": "title_constraints.avg_length 与 emoji_rate 已按原始标题重算值修正（样本 571 条，2026-07-21 重算，详见仓库内 distill 数据验证文档）。蒸馏合并阶段存在 avg_length 置 0 与 emoji_rate 虚高 2-4 倍的脏值。"
   },
   "stats": {
     "avg_title_length": 76,
